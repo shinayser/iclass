@@ -4,3 +4,6 @@
 
 # IDE
 .idea/
+
+# Dart tool
+.dart_tool/

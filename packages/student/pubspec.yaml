@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   design_system:
+  common:
 
 dev_dependencies:
   flutter_test:

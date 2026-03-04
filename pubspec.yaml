@@ -1,6 +1,15 @@
 name: _
 publish_to: none
+
 environment:
   sdk: ^3.11.0
+
 workspace:
   - packages/*
+
+dev_dependencies:
+  melos: ^7.4.0
+
+melos:
+  scripts:
+    test:

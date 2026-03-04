@@ -1,18 +1,21 @@
-name: teacher
+name: common
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
 
 environment:
-  sdk: ^3.10.7
+  sdk: ^3.11.1
   flutter: ">=1.17.0"
 resolution: workspace
 
 dependencies:
   flutter:
     sdk: flutter
-  design_system:
-  common:
+  get_it: ^9.2.1
+  shared_preferences: ^2.5.4
+  bloc: ^9.2.0
+  equatable: ^2.0.8
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:

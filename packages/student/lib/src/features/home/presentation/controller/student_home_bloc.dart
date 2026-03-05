@@ -13,7 +13,10 @@ class StudentHomeBloc extends Cubit<StudentHomeState> {
     emit(StudentHomeLoadingState());
 
     try {
-      final lessons = await _fetchLessons.execute();
+      var lessons = await _fetchLessons.execute();
+      lessons.sort(
+        (a, b) => a.answered == b.answered ? 0 : (a.answered ? 1 : -1),
+      );
       emit(StudentHomeLoadedState(lessons));
     } catch (_) {
       emit(StudentHomeErrorState('Erro ao carregar lições'));

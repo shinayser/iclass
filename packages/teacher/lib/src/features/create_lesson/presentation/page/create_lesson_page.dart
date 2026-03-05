@@ -52,83 +52,101 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
           };
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Criar Lição')),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Título'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descrição (opcional)',
-                    ),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Exercícios',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      IconButton(
-                        onPressed: () =>
-                            _addExercise(context.read<CreateLessonBloc>()),
-                        icon: const Icon(Icons.add_circle),
-                        color: Theme.of(context).primaryColor,
-                        tooltip: 'Adicionar exercício',
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: exercises.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'Nenhum exercício adicionado.',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          )
-                        : ListView.separated(
-                            itemCount: exercises.length,
-                            separatorBuilder: (_, _) => const Divider(),
-                            itemBuilder: (context, index) {
-                              final exercise = exercises[index];
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  child: Text('${index + 1}'),
-                                ),
-                                title: Text(
-                                  exercise.question,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: Text(
-                                  '${exercise.alternatives.length} alternativas',
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => context
-                                      .read<CreateLessonBloc>()
-                                      .removeExercise(index),
-                                ),
-                              );
-                            },
+            appBar: AppBar(title: const Text('Nova lição')),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: const InputDecoration(
+                            labelText: 'Título',
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _descriptionController,
+                          decoration: const InputDecoration(
+                            labelText: 'Descrição (opcional)',
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Exercícios',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            IconButton(
+                              onPressed: () => _addExercise(
+                                context.read<CreateLessonBloc>(),
+                              ),
+                              icon: const Icon(Icons.add_circle),
+                              color: Theme.of(context).primaryColor,
+                              tooltip: 'Adicionar exercício',
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        Expanded(
+                          child: exercises.isEmpty
+                              ? const Center(
+                                  child: Text(
+                                    'Nenhum exercício adicionado.',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  itemCount: exercises.length,
+                                  separatorBuilder: (_, _) => const Divider(),
+                                  itemBuilder: (context, index) {
+                                    final exercise = exercises[index];
+                                    return ListTile(
+                                      leading: CircleAvatar(
+                                        child: Text('${index + 1}'),
+                                      ),
+                                      title: Text(
+                                        exercise.question,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      subtitle: Text(
+                                        '${exercise.alternatives.length} alternativas',
+                                      ),
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.delete_outline),
+                                        onPressed: () => context
+                                            .read<CreateLessonBloc>()
+                                            .removeExercise(index),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              _finish(context.read<CreateLessonBloc>()),
+                          child: const Text('Concluir'),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => _finish(context.read<CreateLessonBloc>()),
-                    child: const Text('Concluir'),
-                  ),
-                ],
+                ),
               ),
             ),
           );

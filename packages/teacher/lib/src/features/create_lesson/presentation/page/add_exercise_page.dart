@@ -79,76 +79,102 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
           return Scaffold(
             appBar: AppBar(title: const Text('Adicionar Exercício')),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: ListView(
-                children: [
-                  TextFormField(
-                    controller: _questionController,
-                    decoration: const InputDecoration(labelText: 'Questão'),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Alternativas',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      if (alternativeCount < 5)
-                        IconButton(
-                          onPressed: bloc.addAlternative,
-                          icon: const Icon(Icons.add_circle),
-                          color: Theme.of(context).primaryColor,
-                          tooltip: 'Adicionar alternativa',
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  RadioGroup<int>(
-                    groupValue: correctIndex ?? -1,
-                    onChanged: (v) {
-                      if (v != null) bloc.selectCorrectAnswer(v);
-                    },
-                    child: Column(
-                      children: List.generate(alternativeCount, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          TextFormField(
+                            controller: _questionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Questão',
+                            ),
+                            maxLines: 3,
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Radio<int>(value: index),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _alternativeControllers[index],
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        'Alternativa ${String.fromCharCode(65 + index)}',
-                                  ),
-                                ),
+                              Text(
+                                'Alternativas',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              if (alternativeCount >
-                                  kMinimumAmountOfAlternatives)
+                              if (alternativeCount < 5)
                                 IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                  onPressed: () =>
-                                      bloc.removeAlternative(index),
+                                  onPressed: bloc.addAlternative,
+                                  icon: const Icon(Icons.add_circle),
+                                  color: Theme.of(context).primaryColor,
+                                  tooltip: 'Adicionar alternativa',
                                 ),
                             ],
                           ),
-                        );
-                      }),
+                          const SizedBox(height: 8),
+                          RadioGroup<int>(
+                            groupValue: correctIndex ?? -1,
+                            onChanged: (v) {
+                              if (v != null) bloc.selectCorrectAnswer(v);
+                            },
+                            child: Column(
+                              children: List.generate(alternativeCount, (
+                                index,
+                              ) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Radio<int>(value: index),
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller:
+                                              _alternativeControllers[index],
+                                          decoration: InputDecoration(
+                                            labelText:
+                                                'Alternativa ${String.fromCharCode(65 + index)}',
+                                          ),
+                                        ),
+                                      ),
+                                      if (alternativeCount >
+                                          kMinimumAmountOfAlternatives)
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.remove_circle_outline,
+                                          ),
+                                          onPressed: () =>
+                                              bloc.removeAlternative(index),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            child: const Text('Adicionar'),
+                            onPressed: () => bloc.save(
+                              _questionController.text,
+                              _alternativeControllers
+                                  .map((c) => c.text)
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    child: const Text('Adicionar'),
-                    onPressed: () => bloc.save(
-                      _questionController.text,
-                      _alternativeControllers.map((c) => c.text).toList(),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           );

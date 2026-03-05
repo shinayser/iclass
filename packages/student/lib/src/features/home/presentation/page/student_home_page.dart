@@ -31,7 +31,16 @@ class StudentHomePage extends StatelessWidget {
               ],
               title: Center(child: Text('iClass')),
             ),
-            body: _buildBody(context, state),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: _buildBody(context, state),
+            ),
           );
         },
       ),
@@ -61,12 +70,14 @@ class StudentHomePage extends StatelessWidget {
 
       if (lessons.isEmpty) {
         return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'Nenhuma lição disponível no momento.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Nenhuma lição disponível no momento.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12),
+              ),
             ),
           ),
         );
@@ -78,32 +89,36 @@ class StudentHomePage extends StatelessWidget {
         separatorBuilder: (_, _) => const Divider(),
         itemBuilder: (context, index) {
           final lesson = lessons[index];
-          return ListTile(
-            leading: lesson.answered
-                ? CircleAvatar(
-                    backgroundColor: Colors.green,
-                    child: Icon(
-                      Icons.check,
-                      color: Colors.white,
+          return Card(
+            child: ListTile(
+              leading: lesson.answered
+                  ? CircleAvatar(
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      ),
+                    )
+                  : CircleAvatar(
+                      child: Text('${index + 1}'),
                     ),
-                  )
-                : CircleAvatar(
-                    child: Text('${index + 1}'),
-                  ),
-            title: Text(lesson.name),
-            subtitle: Text(
-              '${lesson.exercises.length} exercício(s)',
+              title: Text(lesson.name),
+              subtitle: Text(
+                '${lesson.exercises.length} exercício(s)',
+              ),
+              trailing: lesson.answered
+                  ? null
+                  : const Icon(Icons.chevron_right),
+              onTap: lesson.answered
+                  ? null
+                  : () {
+                      Navigator.pushNamed(
+                        context,
+                        StudentModule.answerLessonRoute,
+                        arguments: lesson,
+                      );
+                    },
             ),
-            trailing: lesson.answered ? null : const Icon(Icons.chevron_right),
-            onTap: lesson.answered
-                ? null
-                : () {
-                    Navigator.pushNamed(
-                      context,
-                      StudentModule.answerLessonRoute,
-                      arguments: lesson,
-                    );
-                  },
           );
         },
       );

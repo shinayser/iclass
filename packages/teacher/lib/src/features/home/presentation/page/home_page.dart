@@ -43,7 +43,16 @@ class HomePage extends StatelessWidget {
               },
               child: Icon(Icons.add),
             ),
-            body: _buildBody(state),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: _buildBody(state),
+            ),
           );
         },
       ),
@@ -73,12 +82,14 @@ class HomePage extends StatelessWidget {
 
       if (lessons.isEmpty) {
         return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'Nenhuma lição cadastrada.\nToque no botão para criar uma nova lição.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Nenhuma lição cadastrada.\nToque no botão para criar uma nova lição.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12),
+              ),
             ),
           ),
         );
@@ -90,11 +101,13 @@ class HomePage extends StatelessWidget {
         separatorBuilder: (_, _) => const Divider(),
         itemBuilder: (context, index) {
           final lesson = lessons[index];
-          return ListTile(
-            leading: CircleAvatar(child: Text('${index + 1}')),
-            title: Text(lesson.name),
-            subtitle: Text(
-              '${lesson.exercises.length} exerc\u00edcio(s)',
+          return Card(
+            child: ListTile(
+              leading: CircleAvatar(child: Text('${index + 1}')),
+              title: Text(lesson.name),
+              subtitle: Text(
+                '${lesson.exercises.length} exerc\u00edcio(s)',
+              ),
             ),
           );
         },

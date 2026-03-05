@@ -57,78 +57,90 @@ class _AnswerLessonPageState extends State<AnswerLessonPage> {
 
           return Scaffold(
             appBar: AppBar(title: Text(widget.lesson.name)),
-            body: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: exercises.length,
-                    itemBuilder: (context, exerciseIndex) {
-                      final exercise = exercises[exerciseIndex];
-                      final alternatives = _shuffledAlternatives[exerciseIndex];
-                      final selected = selectedAnswers[exerciseIndex];
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Questão ${exerciseIndex + 1}',
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                exercise.title,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 12),
-                              Column(
-                                children: alternatives.map((alt) {
-                                  return ListTile(
-                                    leading: Radio<String>(
-                                      value: alt,
-                                      groupValue: selected,
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          bloc.selectAnswer(
-                                            exerciseIndex,
-                                            value,
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    title: Text(alt),
-                                    onTap: () =>
-                                        bloc.selectAnswer(exerciseIndex, alt),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF9333EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: bloc.conclude,
-                      child: const Text('Concluir Lição'),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: exercises.length,
+                      itemBuilder: (context, exerciseIndex) {
+                        final exercise = exercises[exerciseIndex];
+                        final alternatives =
+                            _shuffledAlternatives[exerciseIndex];
+                        final selected = selectedAnswers[exerciseIndex];
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Questão ${exerciseIndex + 1}',
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  exercise.title,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 12),
+                                Column(
+                                  children: alternatives.map((alt) {
+                                    return ListTile(
+                                      leading: Radio<String>(
+                                        value: alt,
+                                        groupValue: selected,
+                                        onChanged: (value) {
+                                          if (value != null) {
+                                            bloc.selectAnswer(
+                                              exerciseIndex,
+                                              value,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      title: Text(alt),
+                                      onTap: () =>
+                                          bloc.selectAnswer(exerciseIndex, alt),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: bloc.conclude,
+                        child: const Text('Concluir Lição'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

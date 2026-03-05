@@ -10,7 +10,7 @@ abstract interface class RemoteLessonsDataSource {
 class FakeRemoteLessonsDataSource implements RemoteLessonsDataSource {
   final List<Lesson> _lessons = [];
 
-  static const _simulatedDelay = Duration(milliseconds: 800);
+  static const _simulatedDelay = Duration(milliseconds: 1500);
 
   @override
   Future<List<Lesson>> fetchLessons() {

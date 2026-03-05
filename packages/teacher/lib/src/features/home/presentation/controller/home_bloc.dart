@@ -31,12 +31,16 @@ class HomeBloc extends Cubit<HomeState> {
       _syncSub = _syncService.stateStream.listen((syncState) {
         final s = state;
         if (s is HomeLoadedState) {
-          emit(
-            HomeLoadedState(
-              s.lessons,
-              isSyncing: syncState == SyncState.syncing,
-            ),
-          );
+          if (syncState != .syncing) {
+            loadLessons();
+          } else {
+            emit(
+              HomeLoadedState(
+                s.lessons,
+                isSyncing: syncState == SyncState.syncing,
+              ),
+            );
+          }
         }
       });
     } catch (e) {

@@ -1,12 +1,19 @@
+import 'package:auth/auth.dart';
 import 'package:auth/src/features/login/data/login_data_source.dart';
 import 'package:auth/src/features/login/domain/login_repository.dart';
 import 'package:auth/src/features/login/domain/login_use_case.dart';
 import 'package:auth/src/features/login/presentation/controller/login_bloc.dart';
 import 'package:common/common.dart';
+import 'package:flutter/material.dart';
 
 export 'package:auth/src/features/login/presentation/page/login_page.dart';
 
-class AuthModule implements Module {
+class AuthModule extends Module with RoutedModule {
+  @override
+  Map<String, WidgetBuilder> get routes => {
+    CommonRoutes.login: (context) => const LoginPage(),
+  };
+
   @override
   Future<void> init() async {
     await _initDataSources();

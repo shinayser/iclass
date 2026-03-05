@@ -1,5 +1,5 @@
 import 'package:auth/src/features/login/data/login_data_source.dart';
-import 'package:auth/src/features/login/data/login_type.dart';
+import 'package:common/src/domain/entities/login_type.dart';
 import 'package:common/common.dart';
 
 enum LoginRepositoryError { invalidCredentials, unknownError }
@@ -13,15 +13,21 @@ abstract interface class LoginRepository {
 }
 
 class LoginRepositoryImpl implements LoginRepository {
+  static const kLoginType = 'login_type';
+
   final LoginDataSource _dataSource;
   final LocalDatabase _localDatabase;
 
   LoginRepositoryImpl(this._dataSource, this._localDatabase);
 
   @override
-  Future<LoginType> login(String username, String password) {
+  Future<LoginType> login(String username, String password) async {
     try {
-      return _dataSource.login(username, password);
+      final loginType = await _dataSource.login(username, password);
+
+      await _localDatabase.saveData(kLoginType, loginType.name);
+
+      return loginType;
     } catch (e) {
       switch (e) {
         case LoginDataSourceError.invalidCredentials:
@@ -34,11 +40,11 @@ class LoginRepositoryImpl implements LoginRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    return true;
+    return await _localDatabase.getData(kLoginType) != null;
   }
 
   @override
-  Future<void> logout() {
-    return Future.delayed(const Duration(seconds: 1));
+  Future<void> logout() async {
+    await _localDatabase.deleteData(kLoginType);
   }
 }

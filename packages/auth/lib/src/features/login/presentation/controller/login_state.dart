@@ -1,4 +1,4 @@
-import 'package:auth/src/features/login/data/login_type.dart';
+import 'package:common/src/domain/entities/login_type.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class LoginState with EquatableMixin {}

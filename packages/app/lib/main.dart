@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auth/auth.dart';
 import 'package:common/common.dart';
 import 'package:design_system/design_system.dart';
@@ -11,9 +13,9 @@ void main() async {
 
   final allModules = [
     CommonModule(),
+    AuthModule(),
     StudentModule(),
     TeacherModule(),
-    AuthModule(),
     DesignSystemModule(),
   ];
 
@@ -21,17 +23,28 @@ void main() async {
     await module.init();
   }
 
-  runApp(const MyApp());
+  final allRoutes = allModules
+      .whereType<RoutedModule>()
+      .map((module) => module.routes)
+      .fold(
+        <String, WidgetBuilder>{},
+        (previousValue, element) => {...previousValue, ...element},
+      );
+
+  runApp(MyApp(routes: allRoutes));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Map<String, WidgetBuilder> routes;
+
+  const MyApp({super.key, this.routes = const {}});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: kDesignSystemTheme,
+      routes: routes,
       home: const LoginPage(),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:auth/src/features/login/data/login_data_source.dart';
-import 'package:auth/src/features/login/data/login_type.dart';
+import 'package:common/src/domain/entities/login_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

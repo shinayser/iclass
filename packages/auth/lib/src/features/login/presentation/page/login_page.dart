@@ -23,11 +23,9 @@ class _LoginPageState extends State<LoginPage> {
       child: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoginDoneState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Login successful ${state.loginType.name}'),
-              ),
-            );
+            Navigator.of(
+              context,
+            ).pushReplacementNamed(CommonRoutes.getHome(state.loginType));
           }
         },
         builder: (BuildContext context, LoginState state) {

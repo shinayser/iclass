@@ -1,4 +1,4 @@
-import 'login_type.dart';
+import 'package:common/common.dart' show LoginType;
 
 enum LoginDataSourceError { invalidCredentials, unknownError }
 
@@ -9,7 +9,7 @@ abstract interface class LoginDataSource {
 class MockedLoginDataSource implements LoginDataSource {
   @override
   Future<LoginType> login(String username, String password) {
-    return Future.delayed(const Duration(seconds: 2), () {
+    return Future.delayed(const Duration(milliseconds: 1200), () {
       switch ((username, password)) {
         case ('student', 'student123'):
           return .student;

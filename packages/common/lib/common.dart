@@ -1,12 +1,18 @@
-import 'package:common/src/utils/injection.dart';
-import 'package:common/src/utils/local_database.dart';
-import 'package:common/src/utils/module.dart';
+import 'package:common/src/core/injection.dart';
+import 'package:common/src/core/local_database.dart';
+import 'package:common/src/core/module.dart';
+import 'package:common/src/domain/repositories/lessons_repository.dart';
 
-export 'package:common/src/utils/injection.dart';
-export 'package:common/src/utils/local_database.dart';
-export 'package:common/src/utils/module.dart';
+export 'package:common/src/core/common_routes.dart';
+export 'package:common/src/core/injection.dart';
+export 'package:common/src/core/local_database.dart';
+export 'package:common/src/core/module.dart';
+export 'package:common/src/domain/entities/lesson.dart';
+export 'package:common/src/domain/entities/login_type.dart';
+export 'package:common/src/domain/repositories/lessons_repository.dart';
+export 'package:common/src/domain/use_cases/fetch_lessons.dart';
 
-class CommonModule implements Module {
+class CommonModule extends Module {
   @override
   Future<void> init() async {
     final preferencesLocalDatabase = PreferencesLocalDatabase();
@@ -14,6 +20,10 @@ class CommonModule implements Module {
 
     Injection.registerLazySingleton<LocalDatabase>(
       () => preferencesLocalDatabase,
+    );
+
+    Injection.registerLazySingleton<LessonsRepository>(
+      () => LocalLessonsRepository(Injection.get<LocalDatabase>()),
     );
   }
 }

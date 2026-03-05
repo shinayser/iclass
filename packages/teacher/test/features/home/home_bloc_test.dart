@@ -9,17 +9,21 @@ import 'package:teacher/src/features/home/presentation/controller/home_state.dar
 
 class _MockFetchLessons extends Mock implements FetchLessons {}
 
+class _MockDeleteLesson extends Mock implements DeleteLesson {}
+
 class _MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class _MockSyncService extends Mock implements SyncService {}
 
 void main() {
   late _MockFetchLessons mockFetch;
+  late _MockDeleteLesson mockDelete;
   late _MockLogoutUseCase mockLogout;
   late _MockSyncService mockSync;
 
   setUp(() {
     mockFetch = _MockFetchLessons();
+    mockDelete = _MockDeleteLesson();
     mockLogout = _MockLogoutUseCase();
     mockSync = _MockSyncService();
 
@@ -27,7 +31,7 @@ void main() {
     when(() => mockSync.currentState).thenReturn(SyncState.idle);
   });
 
-  HomeBloc _build() => HomeBloc(mockFetch, mockLogout, mockSync);
+  HomeBloc _build() => HomeBloc(mockFetch, mockDelete, mockLogout, mockSync);
 
   group('HomeBloc', () {
     test('initial state is HomeInitialState', () {
@@ -70,6 +74,46 @@ void main() {
           (s) => s.errorMessage,
           'errorMessage',
           'Erro ao carregar lições',
+        ),
+      ],
+    );
+
+    // -----------------------------------------------------------------------
+    // deleteLesson
+    // -----------------------------------------------------------------------
+
+    blocTest<HomeBloc, HomeState>(
+      'emits [Loading, Loaded] after deleting a lesson successfully',
+      build: () {
+        when(() => mockDelete.execute(any())).thenAnswer((_) async {});
+        when(() => mockFetch.execute()).thenAnswer(
+          (_) async => [_lesson('2')],
+        );
+        return _build();
+      },
+      act: (bloc) => bloc.deleteLesson('1'),
+      expect: () => [
+        isA<HomeLoadingState>(),
+        isA<HomeLoadedState>().having(
+          (s) => s.lessons,
+          'lessons',
+          hasLength(1),
+        ),
+      ],
+    );
+
+    blocTest<HomeBloc, HomeState>(
+      'emits [Error] when deleteLesson throws',
+      build: () {
+        when(() => mockDelete.execute(any())).thenThrow(Exception('error'));
+        return _build();
+      },
+      act: (bloc) => bloc.deleteLesson('1'),
+      expect: () => [
+        isA<HomeErrorState>().having(
+          (s) => s.errorMessage,
+          'errorMessage',
+          'Erro ao apagar lição',
         ),
       ],
     );

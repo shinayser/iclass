@@ -27,6 +27,7 @@ class TeacherModule extends Module with RoutedModule {
     Injection.registerFactory(
       () => HomeBloc(
         Injection.get<FetchLessons>(),
+        Injection.get<DeleteLesson>(),
         Injection.get<LogoutUseCase>(),
         Injection.get<SyncService>(),
       ),
@@ -39,6 +40,9 @@ class TeacherModule extends Module with RoutedModule {
     );
     Injection.registerFactory(
       () => FetchLessons(Injection.get<LessonsRepository>()),
+    );
+    Injection.registerFactory(
+      () => DeleteLesson(Injection.get<LessonsRepository>()),
     );
   }
 

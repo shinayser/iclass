@@ -63,47 +63,47 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          controller: _titleController,
-                          decoration: const InputDecoration(
-                            labelText: 'Título',
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Descrição (opcional)',
-                          ),
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Exercícios',
-                              style: Theme.of(context).textTheme.titleMedium,
+                child: Center(
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          TextFormField(
+                            controller: _titleController,
+                            decoration: const InputDecoration(
+                              labelText: 'Título',
                             ),
-                            IconButton(
-                              onPressed: () => _addExercise(
-                                context.read<CreateLessonBloc>(),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _descriptionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Descrição (opcional)',
+                            ),
+                            maxLines: 3,
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Exercícios',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              icon: const Icon(Icons.add_circle),
-                              color: Theme.of(context).primaryColor,
-                              tooltip: 'Adicionar exercício',
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        Expanded(
-                          child: exercises.isEmpty
+                              IconButton(
+                                onPressed: () => _addExercise(
+                                  context.read<CreateLessonBloc>(),
+                                ),
+                                icon: const Icon(Icons.add_circle),
+                                color: Theme.of(context).primaryColor,
+                                tooltip: 'Adicionar exercício',
+                              ),
+                            ],
+                          ),
+                          const Divider(),
+                          exercises.isEmpty
                               ? const Center(
                                   child: Text(
                                     'Nenhum exercício adicionado.',
@@ -113,6 +113,7 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
                               : ListView.separated(
                                   itemCount: exercises.length,
                                   separatorBuilder: (_, _) => const Divider(),
+                                  shrinkWrap: true,
                                   itemBuilder: (context, index) {
                                     final exercise = exercises[index];
                                     return ListTile(
@@ -128,7 +129,9 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
                                         '${exercise.alternatives.length} alternativas',
                                       ),
                                       trailing: IconButton(
-                                        icon: const Icon(Icons.delete_outline),
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                        ),
                                         onPressed: () => context
                                             .read<CreateLessonBloc>()
                                             .removeExercise(index),
@@ -136,14 +139,14 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
                                     );
                                   },
                                 ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () =>
-                              _finish(context.read<CreateLessonBloc>()),
-                          child: const Text('Concluir'),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () =>
+                                _finish(context.read<CreateLessonBloc>()),
+                            child: const Text('Concluir'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

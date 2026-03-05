@@ -131,13 +131,21 @@ class HomePage extends StatelessWidget {
               subtitle: Text(
                 '${lesson.exercises.length} exerc\u00edcio(s)',
               ),
-              trailing: lesson.syncStatus == SyncStatus.pending
-                  ? const Icon(
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (lesson.syncStatus == SyncStatus.pending)
+                    const Icon(
                       Icons.cloud_upload_outlined,
                       color: Colors.orange,
                       size: 18,
-                    )
-                  : null,
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, lesson),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -145,5 +153,28 @@ class HomePage extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
+  }
+
+  void _confirmDelete(BuildContext context, Lesson lesson) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Apagar lição'),
+        content: Text('Deseja realmente apagar a lição "${lesson.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<HomeBloc>().deleteLesson(lesson.id);
+            },
+            child: const Text('Sim'),
+          ),
+        ],
+      ),
+    );
   }
 }

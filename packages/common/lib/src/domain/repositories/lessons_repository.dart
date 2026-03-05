@@ -7,6 +7,8 @@ abstract interface class LessonsRepository {
 
   Future<void> saveLesson(Lesson lesson);
 
+  Future<void> deleteLesson(String id);
+
   /// Pushes all locally-pending lessons to the remote server.
   Future<void> syncPending();
 }
@@ -72,6 +74,18 @@ class SyncAwareLessonsRepository implements LessonsRepository {
     } catch (_) {
       // Remote failed — keep the lesson as pending for the next retry.
     }
+  }
+
+  @override
+  Future<void> deleteLesson(String id) async {
+    final lessons = await fetchLessons();
+    lessons.removeWhere((l) => l.id == id);
+    final encoded = jsonEncode(lessons.map((l) => l.toJson()).toList());
+    await _database.saveData(_kLessonsList, encoded);
+
+    _connectivity.isOnline().then((isOnline) {
+      if (isOnline) _remote.deleteLesson(id);
+    });
   }
 
   Future<void> _persistLocally(Lesson lesson) async {

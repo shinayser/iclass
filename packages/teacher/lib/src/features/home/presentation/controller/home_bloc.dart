@@ -6,12 +6,13 @@ import 'package:teacher/src/features/home/presentation/controller/home_state.dar
 
 class HomeBloc extends Cubit<HomeState> {
   final FetchLessons _fetchLessons;
+  final DeleteLesson _deleteLesson;
   final LogoutUseCase _loginUseCase;
   final SyncService _syncService;
 
   StreamSubscription<SyncState>? _syncSub;
 
-  HomeBloc(this._fetchLessons, this._loginUseCase, this._syncService)
+  HomeBloc(this._fetchLessons, this._deleteLesson, this._loginUseCase, this._syncService)
     : super(HomeInitialState());
 
   Future<void> loadLessons() async {
@@ -45,6 +46,15 @@ class HomeBloc extends Cubit<HomeState> {
       });
     } catch (e) {
       emit(HomeErrorState('Erro ao carregar lições'));
+    }
+  }
+
+  Future<void> deleteLesson(String id) async {
+    try {
+      await _deleteLesson.execute(id);
+      await loadLessons();
+    } catch (e) {
+      emit(HomeErrorState('Erro ao apagar lição'));
     }
   }
 

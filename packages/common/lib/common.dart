@@ -20,6 +20,7 @@ export 'package:common/src/domain/entities/login_type.dart';
 export 'package:common/src/domain/entities/sync_status.dart';
 export 'package:common/src/domain/repositories/lessons_repository.dart';
 export 'package:common/src/domain/repositories/login_repository.dart';
+export 'package:common/src/domain/use_cases/delete_lesson.dart';
 export 'package:common/src/domain/use_cases/fetch_lessons.dart';
 export 'package:common/src/domain/use_cases/logout_use_case.dart';
 

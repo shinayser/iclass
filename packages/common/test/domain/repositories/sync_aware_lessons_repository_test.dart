@@ -88,6 +88,47 @@ void main() {
       });
     });
 
+    group('deleteLesson — offline', () {
+      setUp(() {
+        when(() => mockConnectivity.isOnline()).thenAnswer((_) async => false);
+      });
+
+      test('removes lesson locally', () async {
+        await repository.saveLesson(_lesson('1'));
+        await repository.saveLesson(_lesson('2'));
+
+        await repository.deleteLesson('1');
+
+        final lessons = await repository.fetchLessons();
+        expect(lessons, hasLength(1));
+        expect(lessons.first.id, '2');
+      });
+
+      test('does not call remote when offline', () async {
+        await repository.saveLesson(_lesson('1'));
+        await repository.deleteLesson('1');
+
+        verifyNever(() => mockRemote.deleteLesson(any()));
+      });
+    });
+
+    group('deleteLesson — online', () {
+      setUp(() {
+        when(() => mockConnectivity.isOnline()).thenAnswer((_) async => true);
+        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async {});
+        when(() => mockRemote.deleteLesson(any())).thenAnswer((_) async {});
+      });
+
+      test('removes lesson locally and calls remote', () async {
+        await repository.saveLesson(_lesson('1'));
+
+        await repository.deleteLesson('1');
+
+        expect(await repository.fetchLessons(), isEmpty);
+        verify(() => mockRemote.deleteLesson('1')).called(1);
+      });
+    });
+
     group('syncPending', () {
       setUp(() {
         when(() => mockRemote.saveLesson(any())).thenAnswer((_) async {});

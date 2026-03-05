@@ -53,6 +53,27 @@ void main() {
         expect(await dataSource.fetchLessons(), hasLength(3));
       });
     });
+
+    group('deleteLesson', () {
+      test('removes the lesson with the given id', () async {
+        await dataSource.saveLesson(_lesson('1'));
+        await dataSource.saveLesson(_lesson('2'));
+
+        await dataSource.deleteLesson('1');
+
+        final lessons = await dataSource.fetchLessons();
+        expect(lessons, hasLength(1));
+        expect(lessons.first.id, '2');
+      });
+
+      test('does nothing when id does not exist', () async {
+        await dataSource.saveLesson(_lesson('1'));
+
+        await dataSource.deleteLesson('999');
+
+        expect(await dataSource.fetchLessons(), hasLength(1));
+      });
+    });
   });
 }
 

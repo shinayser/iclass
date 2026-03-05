@@ -4,8 +4,9 @@ import 'package:teacher/src/features/home/presentation/controller/home_state.dar
 
 class HomeBloc extends Cubit<HomeState> {
   final FetchLessons _fetchLessons;
+  final LogoutUseCase _loginUseCase;
 
-  HomeBloc(this._fetchLessons) : super(HomeInitialState());
+  HomeBloc(this._fetchLessons, this._loginUseCase) : super(HomeInitialState());
 
   Future<void> loadLessons() async {
     emit(HomeLoadingState());
@@ -16,5 +17,10 @@ class HomeBloc extends Cubit<HomeState> {
     } catch (e) {
       emit(HomeErrorState('Erro ao carregar lições'));
     }
+  }
+
+  Future<void> logout() async {
+    await _loginUseCase.logout('', '');
+    emit(HomeLoggedOutState());
   }
 }

@@ -29,7 +29,9 @@ class LocalLessonsRepository implements LessonsRepository {
   @override
   Future<void> saveLesson(Lesson lesson) async {
     final lessons = await fetchLessons();
+    lessons.removeWhere((element) => element.id == lesson.id);
     lessons.add(lesson);
+
     final encodedJson = jsonEncode(lessons.map((e) => e.toJson()).toList());
     return _database.saveData(kLessonsList, encodedJson);
   }

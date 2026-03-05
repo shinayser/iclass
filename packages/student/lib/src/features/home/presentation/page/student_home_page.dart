@@ -1,61 +1,49 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:teacher/teacher.dart';
+import 'package:student/student.dart';
 
-import '../controller/home_bloc.dart';
-import '../controller/home_state.dart';
+import '../controller/student_home_bloc.dart';
+import '../controller/student_home_state.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class StudentHomePage extends StatelessWidget {
+  const StudentHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomeBloc>(
-      create: (_) => Injection.get<HomeBloc>()..loadLessons(),
-      child: BlocConsumer<HomeBloc, HomeState>(
+    return BlocProvider<StudentHomeBloc>(
+      create: (_) => Injection.get<StudentHomeBloc>()..loadLessons(),
+      child: BlocConsumer<StudentHomeBloc, StudentHomeState>(
         listener: (context, state) {
-          if (state is HomeLoggedOutState) {
+          if (state is StudentHomeLoggedOutState) {
             Navigator.of(context).pushReplacementNamed(CommonRoutes.login);
           }
         },
-        buildWhen: (_, current) => current is! HomeLoggedOutState,
+        buildWhen: (_, current) => current is! StudentHomeLoggedOutState,
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
               actions: [
                 IconButton(
-                  onPressed: () => context.read<HomeBloc>().logout(),
+                  onPressed: () => context.read<StudentHomeBloc>().logout(),
                   icon: Icon(Icons.logout),
                 ),
               ],
               title: Center(child: Text('iClass')),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                await Navigator.pushNamed(
-                  context,
-                  TeacherModule.createLessonRoute,
-                );
-                if (context.mounted) {
-                  context.read<HomeBloc>().loadLessons();
-                }
-              },
-              child: Icon(Icons.add),
-            ),
-            body: _buildBody(state),
+            body: _buildBody(context, state),
           );
         },
       ),
     );
   }
 
-  Widget _buildBody(HomeState state) {
-    if (state is HomeLoadingState || state is HomeInitialState) {
+  Widget _buildBody(BuildContext context, StudentHomeState state) {
+    if (state is StudentHomeLoadingState || state is StudentHomeInitialState) {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
-    if (state is HomeErrorState) {
+    if (state is StudentHomeErrorState) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -68,7 +56,7 @@ class HomePage extends StatelessWidget {
       );
     }
 
-    if (state is HomeLoadedState) {
+    if (state is StudentHomeLoadedState) {
       final lessons = state.lessons;
 
       if (lessons.isEmpty) {
@@ -76,7 +64,7 @@ class HomePage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Nenhuma lição cadastrada.\nToque no botão para criar uma nova lição.',
+              'Nenhuma lição disponível no momento.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12),
             ),
@@ -91,11 +79,31 @@ class HomePage extends StatelessWidget {
         itemBuilder: (context, index) {
           final lesson = lessons[index];
           return ListTile(
-            leading: CircleAvatar(child: Text('${index + 1}')),
+            leading: lesson.answered
+                ? CircleAvatar(
+                    backgroundColor: Colors.green,
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.white,
+                    ),
+                  )
+                : CircleAvatar(
+                    child: Text('${index + 1}'),
+                  ),
             title: Text(lesson.name),
             subtitle: Text(
-              '${lesson.exercises.length} exerc\u00edcio(s)',
+              '${lesson.exercises.length} exercício(s)',
             ),
+            trailing: lesson.answered ? null : const Icon(Icons.chevron_right),
+            onTap: lesson.answered
+                ? null
+                : () {
+                    Navigator.pushNamed(
+                      context,
+                      StudentModule.answerLessonRoute,
+                      arguments: lesson,
+                    );
+                  },
           );
         },
       );

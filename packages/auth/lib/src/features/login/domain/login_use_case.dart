@@ -1,5 +1,4 @@
-import 'package:common/src/domain/entities/login_type.dart';
-import 'package:auth/src/features/login/domain/login_repository.dart';
+import 'package:common/common.dart';
 
 enum LoginUseCaseError { invalidCredentials, unknownError }
 

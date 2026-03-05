@@ -25,7 +25,10 @@ class TeacherModule extends Module with RoutedModule {
     );
     Injection.registerFactory(() => AddExerciseBloc());
     Injection.registerFactory(
-      () => HomeBloc(Injection.get<FetchLessons>()),
+      () => HomeBloc(
+        Injection.get<FetchLessons>(),
+        Injection.get<LogoutUseCase>(),
+      ),
     );
   }
 

@@ -1,6 +1,6 @@
 import 'package:auth/auth.dart';
 import 'package:auth/src/features/login/data/login_data_source.dart';
-import 'package:auth/src/features/login/domain/login_repository.dart';
+import 'package:common/src/domain/repositories/login_repository.dart';
 import 'package:auth/src/features/login/domain/login_use_case.dart';
 import 'package:auth/src/features/login/presentation/controller/login_bloc.dart';
 import 'package:common/common.dart';

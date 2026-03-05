@@ -30,3 +30,8 @@ class HomeErrorState extends HomeState with EquatableMixin {
   @override
   List<Object?> get props => [errorMessage];
 }
+
+class HomeLoggedOutState extends HomeState with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}

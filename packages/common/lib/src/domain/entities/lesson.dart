@@ -5,12 +5,14 @@ class Lesson with EquatableMixin {
   final String name;
   final String description;
   final List<ExerciseEntity> exercises;
+  final bool answered;
 
   Lesson({
     required this.id,
     required this.name,
     required this.description,
     required this.exercises,
+    this.answered = false,
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
@@ -21,6 +23,7 @@ class Lesson with EquatableMixin {
       exercises: (json['exercises'] as List<dynamic>)
           .map((e) => ExerciseEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
+      answered: json['answered'] as bool? ?? false,
     );
   }
 
@@ -32,6 +35,7 @@ class Lesson with EquatableMixin {
     'name': name,
     'description': description,
     'exercises': exercises.map((e) => e.toJson()).toList(),
+    'answered': answered,
   };
 }
 

@@ -26,6 +26,7 @@ class StudentModule extends Module with RoutedModule {
       () => StudentHomeBloc(
         Injection.get<FetchLessons>(),
         Injection.get<LogoutUseCase>(),
+        Injection.get<SyncService>(),
       ),
     );
 

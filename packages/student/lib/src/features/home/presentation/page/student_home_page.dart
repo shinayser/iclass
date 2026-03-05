@@ -21,9 +21,32 @@ class StudentHomePage extends StatelessWidget {
         },
         buildWhen: (_, current) => current is! StudentHomeLoggedOutState,
         builder: (context, state) {
+          final isSyncing = state is StudentHomeLoadedState && state.isSyncing;
+
           return Scaffold(
             appBar: AppBar(
               actions: [
+                if (isSyncing)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Sincronizando…',
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 IconButton(
                   onPressed: () => context.read<StudentHomeBloc>().logout(),
                   icon: Icon(Icons.logout),
@@ -108,6 +131,12 @@ class StudentHomePage extends StatelessWidget {
               ),
               trailing: lesson.answered
                   ? null
+                  : lesson.syncStatus == SyncStatus.pending
+                  ? const Icon(
+                      Icons.cloud_upload_outlined,
+                      color: Colors.orange,
+                      size: 18,
+                    )
                   : const Icon(Icons.chevron_right),
               onTap: lesson.answered
                   ? null
@@ -116,6 +145,12 @@ class StudentHomePage extends StatelessWidget {
                         context,
                         StudentModule.answerLessonRoute,
                         arguments: lesson,
+                      ).then(
+                        (value) {
+                          if (context.mounted) {
+                            context.read<StudentHomeBloc>().loadLessons();
+                          }
+                        },
                       );
                     },
             ),

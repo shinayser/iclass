@@ -30,7 +30,7 @@ class AnswerLessonBloc extends Cubit<AnswerLessonState> {
     );
   }
 
-  void conclude() async {
+  Future<void> conclude() async {
     final current = _currentFormData;
     final totalExercises = current.lesson.exercises.length;
 

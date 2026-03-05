@@ -13,3 +13,9 @@ dev_dependencies:
 melos:
   scripts:
     test:
+      exec: flutter test
+      description: Roda os testes unitários em todos os packages
+      packageFilters:
+        dirExists: test
+        ignore:
+          - app

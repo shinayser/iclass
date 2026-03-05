@@ -9,6 +9,8 @@ import 'package:student/student.dart';
 import 'package:teacher/teacher.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   EquatableConfig.stringify = true;
 
   final allModules = [

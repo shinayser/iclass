@@ -28,6 +28,7 @@ class TeacherModule extends Module with RoutedModule {
       () => HomeBloc(
         Injection.get<FetchLessons>(),
         Injection.get<LogoutUseCase>(),
+        Injection.get<SyncService>(),
       ),
     );
   }

@@ -21,9 +21,32 @@ class HomePage extends StatelessWidget {
         },
         buildWhen: (_, current) => current is! HomeLoggedOutState,
         builder: (context, state) {
+          final isSyncing = state is HomeLoadedState && state.isSyncing;
+
           return Scaffold(
             appBar: AppBar(
               actions: [
+                if (isSyncing)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Sincronizando…',
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 IconButton(
                   onPressed: () => context.read<HomeBloc>().logout(),
                   icon: Icon(Icons.logout),
@@ -108,6 +131,13 @@ class HomePage extends StatelessWidget {
               subtitle: Text(
                 '${lesson.exercises.length} exerc\u00edcio(s)',
               ),
+              trailing: lesson.syncStatus == SyncStatus.pending
+                  ? const Icon(
+                      Icons.cloud_upload_outlined,
+                      color: Colors.orange,
+                      size: 18,
+                    )
+                  : null,
             ),
           );
         },

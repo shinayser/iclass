@@ -15,11 +15,12 @@ class StudentHomeLoadingState extends StudentHomeState with EquatableMixin {
 
 class StudentHomeLoadedState extends StudentHomeState with EquatableMixin {
   final List<Lesson> lessons;
+  final bool isSyncing;
 
-  StudentHomeLoadedState(this.lessons);
+  StudentHomeLoadedState(this.lessons, {this.isSyncing = false});
 
   @override
-  List<Object?> get props => [lessons];
+  List<Object?> get props => [lessons, isSyncing];
 }
 
 class StudentHomeErrorState extends StudentHomeState with EquatableMixin {

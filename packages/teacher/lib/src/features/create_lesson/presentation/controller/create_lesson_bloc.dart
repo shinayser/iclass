@@ -20,7 +20,7 @@ class CreateLessonBloc extends Cubit<CreateLessonState> {
     emit(CreateLessonFormState(exercises: exercises));
   }
 
-  void conclude(String title, String description) async {
+  Future<void> conclude(String title, String description) async {
     final exercises = _currentExercises;
 
     if (title.trim().isEmpty) {

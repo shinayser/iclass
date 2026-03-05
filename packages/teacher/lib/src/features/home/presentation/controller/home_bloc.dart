@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:common/common.dart';
 import 'package:teacher/src/features/home/presentation/controller/home_state.dart';
@@ -5,15 +7,38 @@ import 'package:teacher/src/features/home/presentation/controller/home_state.dar
 class HomeBloc extends Cubit<HomeState> {
   final FetchLessons _fetchLessons;
   final LogoutUseCase _loginUseCase;
+  final SyncService _syncService;
 
-  HomeBloc(this._fetchLessons, this._loginUseCase) : super(HomeInitialState());
+  StreamSubscription<SyncState>? _syncSub;
+
+  HomeBloc(this._fetchLessons, this._loginUseCase, this._syncService)
+    : super(HomeInitialState());
 
   Future<void> loadLessons() async {
     emit(HomeLoadingState());
 
     try {
       final lessons = await _fetchLessons.execute();
-      emit(HomeLoadedState(lessons));
+
+      emit(
+        HomeLoadedState(
+          lessons,
+          isSyncing: _syncService.currentState == SyncState.syncing,
+        ),
+      );
+
+      _syncSub?.cancel();
+      _syncSub = _syncService.stateStream.listen((syncState) {
+        final s = state;
+        if (s is HomeLoadedState) {
+          emit(
+            HomeLoadedState(
+              s.lessons,
+              isSyncing: syncState == SyncState.syncing,
+            ),
+          );
+        }
+      });
     } catch (e) {
       emit(HomeErrorState('Erro ao carregar lições'));
     }
@@ -22,5 +47,11 @@ class HomeBloc extends Cubit<HomeState> {
   Future<void> logout() async {
     await _loginUseCase.logout('', '');
     emit(HomeLoggedOutState());
+  }
+
+  @override
+  Future<void> close() {
+    _syncSub?.cancel();
+    return super.close();
   }
 }

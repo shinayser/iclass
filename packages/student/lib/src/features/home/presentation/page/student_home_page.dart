@@ -1,4 +1,5 @@
 import 'package:common/common.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -135,19 +136,34 @@ class StudentHomePage extends StatelessWidget {
           separatorBuilder: (_, _) => const Divider(),
           itemBuilder: (context, index) {
             final lesson = lessons[index];
+            final hasImage = lesson.imageUrl != null ||
+                lesson.localImagePath != null;
+
             return Card(
               child: ListTile(
                 leading: lesson.answered
-                    ? CircleAvatar(
-                        backgroundColor: Colors.green,
-                        child: Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
-                      )
-                    : CircleAvatar(
-                        child: Text('${index + 1}'),
-                      ),
+                    ? hasImage
+                        ? _AnsweredImageLeading(
+                            imageUrl: lesson.imageUrl,
+                            localImagePath: lesson.localImagePath,
+                          )
+                        : CircleAvatar(
+                            backgroundColor: Colors.green,
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            ),
+                          )
+                    : hasImage
+                        ? LessonImage(
+                            imageUrl: lesson.imageUrl,
+                            localImagePath: lesson.localImagePath,
+                            width: 48,
+                            height: 48,
+                          )
+                        : CircleAvatar(
+                            child: Text('${index + 1}'),
+                          ),
                 title: Text(lesson.name),
                 subtitle: Text(
                   '${lesson.exercises.length} exercício(s)',
@@ -178,5 +194,39 @@ class StudentHomePage extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
+  }
+}
+
+class _AnsweredImageLeading extends StatelessWidget {
+  final String? imageUrl;
+  final String? localImagePath;
+
+  const _AnsweredImageLeading({this.imageUrl, this.localImagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        LessonImage(
+          imageUrl: imageUrl,
+          localImagePath: localImagePath,
+          width: 48,
+          height: 48,
+        ),
+        Positioned(
+          bottom: -4,
+          right: -4,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 14),
+          ),
+        ),
+      ],
+    );
   }
 }

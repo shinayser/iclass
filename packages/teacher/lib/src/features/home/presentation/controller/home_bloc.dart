@@ -53,6 +53,12 @@ class TeacherHomeBloc extends Cubit<HomeState> {
     }
   }
 
+  /// Triggers a sync of pending lessons and then reloads the list.
+  Future<void> refresh() async {
+    await _syncService.syncNow();
+    await loadLessons();
+  }
+
   Future<void> deleteLesson(int id) async {
     try {
       await _deleteLesson.execute(id);

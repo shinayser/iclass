@@ -70,7 +70,7 @@ class TeacherHomePage extends StatelessWidget {
               onPressed: () async {
                 await context.push(TeacherModule.createLessonRoute);
                 if (context.mounted) {
-                  context.read<TeacherHomeBloc>().loadLessons();
+                  context.read<TeacherHomeBloc>().refresh();
                 }
               },
               child: Icon(Icons.add),
@@ -102,7 +102,7 @@ class TeacherHomePage extends StatelessWidget {
 
     if (state is HomeErrorState) {
       return RefreshIndicator(
-        onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
+        onRefresh: () => context.read<TeacherHomeBloc>().refresh(),
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           child: SizedBox(
@@ -130,7 +130,7 @@ class TeacherHomePage extends StatelessWidget {
 
       if (lessons.isEmpty) {
         return RefreshIndicator(
-          onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
+          onRefresh: () => context.read<TeacherHomeBloc>().refresh(),
           child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: SizedBox(
@@ -153,7 +153,7 @@ class TeacherHomePage extends StatelessWidget {
       }
 
       return RefreshIndicator(
-        onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
+        onRefresh: () => context.read<TeacherHomeBloc>().refresh(),
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: lessons.length,
@@ -162,7 +162,7 @@ class TeacherHomePage extends StatelessWidget {
             final lesson = lessons[index];
             return Card(
               child: ListTile(
-                leading: CircleAvatar(child: Text('${index + 1}')),
+                leading: CircleAvatar(child: Text('${lesson.id}')),
                 title: Text(lesson.name),
                 subtitle: Text(
                   '${lesson.exercises.length} exercício(s)',

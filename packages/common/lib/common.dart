@@ -3,6 +3,7 @@ import 'package:common/src/core/injection.dart';
 import 'package:common/src/core/local_database.dart';
 import 'package:common/src/core/module.dart';
 import 'package:common/src/core/sync_service.dart';
+import 'package:common/src/domain/datasources/image_storage_data_source.dart';
 import 'package:common/src/domain/datasources/remote_lessons_data_source.dart';
 import 'package:common/src/domain/datasources/supabase_lessons_remote_data_source.dart';
 import 'package:common/src/domain/repositories/lessons_repository.dart';
@@ -15,6 +16,7 @@ export 'package:common/src/core/injection.dart';
 export 'package:common/src/core/local_database.dart';
 export 'package:common/src/core/module.dart';
 export 'package:common/src/core/sync_service.dart';
+export 'package:common/src/domain/datasources/image_storage_data_source.dart';
 export 'package:common/src/domain/datasources/remote_lessons_data_source.dart';
 export 'package:common/src/domain/entities/lesson.dart';
 export 'package:common/src/domain/entities/login_type.dart';
@@ -44,6 +46,10 @@ class CommonModule extends Module {
       () => SupabaseRemoteLessonsDataSource(Supabase.instance.client),
     );
 
+    Injection.registerLazySingleton<ImageStorageDataSource>(
+      () => SupabaseImageStorageDataSource(Supabase.instance.client),
+    );
+
     final connectivityService = ConnectivityPlusService();
     Injection.registerLazySingleton<ConnectivityService>(
       () => connectivityService,
@@ -54,6 +60,7 @@ class CommonModule extends Module {
         preferencesLocalDatabase,
         Injection.get<RemoteLessonsDataSource>(),
         connectivityService,
+        Injection.get<ImageStorageDataSource>(),
       ),
     );
 

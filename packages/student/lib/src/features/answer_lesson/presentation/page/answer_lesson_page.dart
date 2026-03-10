@@ -1,4 +1,5 @@
 import 'package:common/common.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -87,6 +88,9 @@ class _AnswerLessonBody extends StatefulWidget {
 class _AnswerLessonBodyState extends State<_AnswerLessonBody> {
   late final List<List<String>> _shuffledAlternatives;
 
+  bool get _hasImage =>
+      widget.lesson.imageUrl != null || widget.lesson.localImagePath != null;
+
   @override
   void initState() {
     super.initState();
@@ -116,8 +120,23 @@ class _AnswerLessonBodyState extends State<_AnswerLessonBody> {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: widget.exercises.length,
-                itemBuilder: (context, exerciseIndex) {
+                itemCount: widget.exercises.length + (_hasImage ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (_hasImage && index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: LessonImage(
+                        imageUrl: widget.lesson.imageUrl,
+                        localImagePath: widget.lesson.localImagePath,
+                        width: double.infinity,
+                        height: 200,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(12)),
+                      ),
+                    );
+                  }
+
+                  final exerciseIndex = _hasImage ? index - 1 : index;
                   final exercise = widget.exercises[exerciseIndex];
                   final alternatives = _shuffledAlternatives[exerciseIndex];
                   final selected = widget.selectedAnswers[exerciseIndex];

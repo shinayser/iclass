@@ -14,7 +14,7 @@ class SupabaseRemoteLessonsDataSource implements RemoteLessonsDataSource {
   }
 
   @override
-  Future<void> saveLesson(Lesson lesson) async {
+  Future<int> saveLesson(Lesson lesson) async {
     final lessons = await _supabase
         .from('lessons')
         .upsert({
@@ -22,10 +22,11 @@ class SupabaseRemoteLessonsDataSource implements RemoteLessonsDataSource {
           'name': lesson.name,
           'description': lesson.description,
           'answered': lesson.answered,
+          'image_url': lesson.imageUrl,
         })
         .select('id');
 
-    var returnedLessonId = lessons.first['id'];
+    final returnedLessonId = lessons.first['id'] as int;
 
     await _supabase
         .from('exercises')
@@ -40,6 +41,8 @@ class SupabaseRemoteLessonsDataSource implements RemoteLessonsDataSource {
             };
           }).toList(),
         );
+
+    return returnedLessonId;
   }
 
   @override

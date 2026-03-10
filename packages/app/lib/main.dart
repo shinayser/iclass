@@ -15,7 +15,7 @@ void main() async {
 
   await Supabase.initialize(
     url: 'https://azwzokekmicmhdnafhfh.supabase.co',
-    anonKey: 'sb_publishable_l9YiN7ot9wNIWoVmTCAY0g_DRsJkvox',
+    anonKey: 'API-KEY',
   );
 
   final allModules = [

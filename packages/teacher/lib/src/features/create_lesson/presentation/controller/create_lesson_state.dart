@@ -5,24 +5,27 @@ abstract class CreateLessonState with EquatableMixin {}
 
 class CreateLessonFormState extends CreateLessonState with EquatableMixin {
   final List<ExerciseFormData> exercises;
+  final String? imagePath;
 
-  CreateLessonFormState({this.exercises = const []});
+  CreateLessonFormState({this.exercises = const [], this.imagePath});
 
   @override
-  List<Object?> get props => [exercises];
+  List<Object?> get props => [exercises, imagePath];
 }
 
 class CreateLessonErrorState extends CreateLessonState with EquatableMixin {
   final List<ExerciseFormData> exercises;
   final String errorMessage;
+  final String? imagePath;
 
   CreateLessonErrorState({
     required this.exercises,
     required this.errorMessage,
+    this.imagePath,
   });
 
   @override
-  List<Object?> get props => [exercises, errorMessage];
+  List<Object?> get props => [exercises, errorMessage, imagePath];
 }
 
 class CreateLessonDoneState extends CreateLessonState with EquatableMixin {

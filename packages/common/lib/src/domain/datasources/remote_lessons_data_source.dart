@@ -3,7 +3,8 @@ import 'package:common/common.dart';
 abstract interface class RemoteLessonsDataSource {
   Future<List<Lesson>> fetchLessons();
 
-  Future<void> saveLesson(Lesson lesson);
+  /// Persists the lesson remotely and returns the server-assigned ID.
+  Future<int> saveLesson(Lesson lesson);
 
   Future<void> deleteLesson(int id);
 }
@@ -20,10 +21,12 @@ class FakeRemoteLessonsDataSource implements RemoteLessonsDataSource {
   }
 
   @override
-  Future<void> saveLesson(Lesson lesson) {
+  Future<int> saveLesson(Lesson lesson) {
     return Future.delayed(_simulatedDelay, () {
       _lessons.removeWhere((l) => l.id == lesson.id);
-      _lessons.add(lesson);
+      final id = lesson.id != 0 ? lesson.id : (_lessons.length + 1);
+      _lessons.add(lesson.copyWith(id: id));
+      return id;
     });
   }
 

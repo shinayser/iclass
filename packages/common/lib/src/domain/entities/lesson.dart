@@ -8,6 +8,8 @@ class Lesson with EquatableMixin {
   final List<ExerciseEntity> exercises;
   final bool answered;
   final SyncStatus syncStatus;
+  final String? imageUrl;
+  final String? localImagePath;
 
   Lesson({
     this.id = 0,
@@ -16,6 +18,8 @@ class Lesson with EquatableMixin {
     required this.exercises,
     this.answered = false,
     this.syncStatus = SyncStatus.synced,
+    this.imageUrl,
+    this.localImagePath,
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
@@ -31,6 +35,8 @@ class Lesson with EquatableMixin {
       syncStatus: syncStatusStr != null
           ? SyncStatus.values.byName(syncStatusStr)
           : SyncStatus.synced,
+      imageUrl: json['image_url'] as String?,
+      localImagePath: json['localImagePath'] as String?,
     );
   }
 
@@ -41,6 +47,8 @@ class Lesson with EquatableMixin {
     List<ExerciseEntity>? exercises,
     bool? answered,
     SyncStatus? syncStatus,
+    String? Function()? imageUrl,
+    String? Function()? localImagePath,
   }) {
     return Lesson(
       id: id ?? this.id,
@@ -49,11 +57,15 @@ class Lesson with EquatableMixin {
       exercises: exercises ?? this.exercises,
       answered: answered ?? this.answered,
       syncStatus: syncStatus ?? this.syncStatus,
+      imageUrl: imageUrl != null ? imageUrl() : this.imageUrl,
+      localImagePath:
+          localImagePath != null ? localImagePath() : this.localImagePath,
     );
   }
 
   @override
-  List<Object?> get props => [name, description, exercises, syncStatus];
+  List<Object?> get props =>
+      [name, description, exercises, syncStatus, imageUrl, localImagePath];
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -62,6 +74,8 @@ class Lesson with EquatableMixin {
     'exercises': exercises.map((e) => e.toJson()).toList(),
     'answered': answered,
     'syncStatus': syncStatus.name,
+    'image_url': imageUrl,
+    'localImagePath': localImagePath,
   };
 }
 

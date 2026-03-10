@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:common/common.dart';
+import 'package:common/src/domain/datasources/image_storage_data_source.dart';
 
 abstract interface class LessonsRepository {
   Future<List<Lesson>> fetchLessons();
@@ -27,11 +28,13 @@ class SyncAwareLessonsRepository implements LessonsRepository {
   final LocalDatabase _localDatabase;
   final RemoteLessonsDataSource _remoteDataSource;
   final ConnectivityService _connectivity;
+  final ImageStorageDataSource _imageStorage;
 
   SyncAwareLessonsRepository(
     this._localDatabase,
     this._remoteDataSource,
     this._connectivity,
+    this._imageStorage,
   );
 
   @override
@@ -78,10 +81,17 @@ class SyncAwareLessonsRepository implements LessonsRepository {
     List<Lesson> localLessons,
     List<Lesson> remoteLessons,
   ) {
+    final remoteIds = remoteLessons.map((l) => l.id).toSet();
     final mergedMap = <int, Lesson>{};
 
+    // Keep only local lessons that are pending (not yet synced)
+    // or still exist on the remote. This ensures that remotely-deleted
+    // lessons are cleaned up from local storage.
     for (final lesson in localLessons) {
-      mergedMap[lesson.id] = lesson;
+      if (lesson.syncStatus == SyncStatus.pending ||
+          remoteIds.contains(lesson.id)) {
+        mergedMap[lesson.id] = lesson;
+      }
     }
 
     for (final lesson in remoteLessons) {
@@ -96,10 +106,6 @@ class SyncAwareLessonsRepository implements LessonsRepository {
     await _persistLocally(
       lesson.copyWith(syncStatus: SyncStatus.pending),
     );
-
-    if (await _connectivity.isOnline()) {
-      await _syncLesson(lesson);
-    }
   }
 
   @override
@@ -117,8 +123,33 @@ class SyncAwareLessonsRepository implements LessonsRepository {
 
   Future<void> _syncLesson(Lesson lesson) async {
     try {
-      await _remoteDataSource.saveLesson(lesson);
-      await _persistLocally(lesson.copyWith(syncStatus: SyncStatus.synced));
+      var synced = lesson;
+
+      // Upload pending local image before syncing the lesson.
+      if (lesson.localImagePath != null && lesson.imageUrl == null) {
+        final url = await _imageStorage.uploadLessonImage(
+          lesson.localImagePath!,
+        );
+        synced = synced.copyWith(
+          imageUrl: () => url,
+          localImagePath: () => null,
+        );
+      }
+
+      final remoteId = await _remoteDataSource.saveLesson(synced);
+
+      // Replace the old local entry (which may have id: 0 for new lessons)
+      // with the server-assigned ID.
+      final jsonString = await _localDatabase.getData(_kLessonsList);
+      final lessons = _parseLessons(jsonString);
+      lessons.removeWhere(
+        (l) => l.id == lesson.id && l.name == lesson.name,
+      );
+      lessons.add(
+        synced.copyWith(id: remoteId, syncStatus: SyncStatus.synced),
+      );
+      final encoded = jsonEncode(lessons.map((l) => l.toJson()).toList());
+      await _localDatabase.saveData(_kLessonsList, encoded);
     } catch (_) {
       // Remote failed — keep the lesson as pending for the next retry.
     }
@@ -126,18 +157,23 @@ class SyncAwareLessonsRepository implements LessonsRepository {
 
   @override
   Future<void> deleteLesson(int id) async {
-    final lessons = await fetchLessons();
+    // Read only from local storage — avoids a remote round-trip.
+    final jsonString = await _localDatabase.getData(_kLessonsList);
+    final lessons = _parseLessons(jsonString);
     lessons.removeWhere((l) => l.id == id);
     final encoded = jsonEncode(lessons.map((l) => l.toJson()).toList());
     await _localDatabase.saveData(_kLessonsList, encoded);
 
-    _connectivity.isOnline().then((isOnline) {
-      if (isOnline) _remoteDataSource.deleteLesson(id);
-    });
+    // Await remote delete so the next fetchLessons won't re-merge it.
+    if (await _connectivity.isOnline()) {
+      await _remoteDataSource.deleteLesson(id);
+    }
   }
 
   Future<void> _persistLocally(Lesson lesson) async {
-    final lessons = await fetchLessons();
+    // Read only from local storage — avoids a remote round-trip.
+    final jsonString = await _localDatabase.getData(_kLessonsList);
+    final lessons = _parseLessons(jsonString);
     lessons.removeWhere((l) => l.id == lesson.id && l.name == lesson.name);
     lessons.add(lesson);
     final encoded = jsonEncode(lessons.map((l) => l.toJson()).toList());

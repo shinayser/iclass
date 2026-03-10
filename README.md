@@ -15,10 +15,17 @@ Aplicação Flutter multi-módulo para criação e resolução de lições (exer
 # 1. Instalar dependências (na raiz do projeto)
 flutter pub get
 
-# 2. Rodar o app
+# 2. Abrir o arquivo main.dart do app (packages/app/lib/main.dart) e adicionar a chave de api do supabase.
+
+await Supabase.initialize(
+url: 'https://azwzokekmicmhdnafhfh.supabase.co',
+anonKey: 'API-KEY',
+);
+
+# 3. Rodar o app
 flutter run -d <device> --project packages/app
 
-# 3. Rodar todos os testes unitários
+# 4. Rodar todos os testes unitários
 melos run test --no-select
 # ou individualmente:
 flutter test packages/common
@@ -114,10 +121,8 @@ Na home do professor, cada lição possui um botão de compartilhamento (ícone 
 
 ## O que eu faria como melhorias futuras
 Devido ao meu curto tempo para desenvolver o projeto (questões pessoais) e o meu desejo de fazê-lo sem auxílio de Agentes de IA, eu precisei fazer alguns trade offs para a entrega:
-* Toda a persistência foi feita utilizando `SharedPreferences` por questão de simplicidade. Mas em um ambiente de produção real eu provavelmente usaria a biblioteca Hive (hive_ce) para persistência local, e para a camada de dados remotos, utilizaria uma API REST real ou GRPC.
+* Toda a persistência foi feita utilizando `SharedPreferences` por questão de simplicidade e usando o `Supabase` para armazenamento remoto. Mas em um ambiente de produção real eu provavelmente usaria a biblioteca Hive (hive_ce) para persistência local, e para a camada de dados remotos, utilizaria uma API REST real ou GRPC.
 * Outras simplificações foram feitas como por exemplo o login, que ao invés de retornar um token real apenas retorna o tipo do login do usuário. 
-
-A feature de sincronização é funcional mas não está com a melhor experiência, pois está toda todando na thread principal. O que eu faria primeiro seria encapsular as chamadas do `SyncService` em um isolate, isso permitiria que a sincronização acontecesse em background sem travar a UI, e também permitiria que o usuário continuasse usando o app normalmente enquanto a sincronização acontece sem causar pausas na interface do usuário.
 
 Sobre o uso de IA: 
 * A maioria do app foi escrito manualmente, utilizando o copilot apenas para auto complete de boilerplate.

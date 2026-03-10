@@ -8,20 +8,25 @@ class _MockRemote extends Mock implements RemoteLessonsDataSource {}
 
 class _MockConnectivity extends Mock implements ConnectivityService {}
 
+class _MockImageStorage extends Mock implements ImageStorageDataSource {}
+
 void main() {
   late FakeLocalDatabase fakeDb;
   late _MockRemote mockRemote;
   late _MockConnectivity mockConnectivity;
+  late _MockImageStorage mockImageStorage;
   late SyncAwareLessonsRepository repository;
 
   setUp(() {
     fakeDb = FakeLocalDatabase();
     mockRemote = _MockRemote();
     mockConnectivity = _MockConnectivity();
+    mockImageStorage = _MockImageStorage();
     repository = SyncAwareLessonsRepository(
       fakeDb,
       mockRemote,
       mockConnectivity,
+      mockImageStorage,
     );
     registerFallbackValue(_lesson(0));
   });
@@ -53,39 +58,28 @@ void main() {
       });
     });
 
-    group('saveLesson — online', () {
+    group('saveLesson — online (fire-and-forget)', () {
       setUp(() {
         when(() => mockConnectivity.isOnline()).thenAnswer((_) async => true);
-        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async {});
+        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async => 1);
       });
 
-      test('marks lesson as synced after remote success', () async {
+      test('persists locally as pending immediately', () async {
         await repository.saveLesson(_lesson(1));
 
         final lessons = await repository.fetchLessons();
-        expect(lessons.first.syncStatus, SyncStatus.synced);
-      });
-
-      test('calls the remote data source once', () async {
-        await repository.saveLesson(_lesson(1));
-
-        verify(() => mockRemote.saveLesson(any())).called(1);
-      });
-    });
-
-    group('saveLesson — online, remote fails', () {
-      setUp(() {
-        when(() => mockConnectivity.isOnline()).thenAnswer((_) async => true);
-        when(
-          () => mockRemote.saveLesson(any()),
-        ).thenThrow(Exception('network error'));
-      });
-
-      test('lesson stays as pending when remote throws', () async {
-        await repository.saveLesson(_lesson(1));
-
-        final lessons = await repository.fetchLessons();
+        // Sync happens in the background; local status is pending right away.
         expect(lessons.first.syncStatus, SyncStatus.pending);
+      });
+
+      test('does not await remote call during save', () async {
+        await repository.saveLesson(_lesson(1));
+
+        // The remote call is fire-and-forget, so it may not have been
+        // invoked yet at this exact point. The sync will be handled
+        // by SyncService / syncPending.
+        // We only assert that the local persist succeeded.
+        expect(await repository.fetchLessons(), hasLength(1));
       });
     });
 
@@ -116,7 +110,7 @@ void main() {
     group('deleteLesson — online', () {
       setUp(() {
         when(() => mockConnectivity.isOnline()).thenAnswer((_) async => true);
-        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async {});
+        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async => 1);
         when(() => mockRemote.deleteLesson(any())).thenAnswer((_) async {});
       });
 
@@ -132,7 +126,7 @@ void main() {
 
     group('syncPending', () {
       setUp(() {
-        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async {});
+        when(() => mockRemote.saveLesson(any())).thenAnswer((_) async => 1);
       });
 
       test(
@@ -156,14 +150,19 @@ void main() {
       );
 
       test('does not call remote for already-synced lessons', () async {
-        when(() => mockConnectivity.isOnline()).thenAnswer((_) async => true);
-        await repository.saveLesson(_lesson(1)); // synced online
+        // Save offline so lesson stays pending.
+        when(
+          () => mockConnectivity.isOnline(),
+        ).thenAnswer((_) async => false);
+        await repository.saveLesson(_lesson(1));
 
-        // Remote was called once during saveLesson itself.
-        // After syncPending, total should still be 1 (no duplicate call).
+        // Sync it manually so it becomes synced.
         await repository.syncPending();
-
         verify(() => mockRemote.saveLesson(any())).called(1);
+
+        // Another syncPending should not call remote again.
+        await repository.syncPending();
+        verifyNever(() => mockRemote.saveLesson(any()));
       });
 
       test('keeps lesson as pending when remote fails during sync', () async {

@@ -1,7 +1,9 @@
 import 'package:common/common.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:teacher/src/features/create_lesson/data/model/exercise_form_data.dart';
 import 'package:teacher/teacher.dart';
 
@@ -52,6 +54,12 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
             _ => <ExerciseFormData>[],
           };
 
+          final imagePath = switch (state) {
+            CreateLessonFormState s => s.imagePath,
+            CreateLessonErrorState s => s.imagePath,
+            _ => null,
+          };
+
           return Scaffold(
             appBar: AppBar(title: const Text('Nova lição')),
             body: Container(
@@ -84,6 +92,11 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
                               labelText: 'Descrição (opcional)',
                             ),
                             maxLines: 3,
+                          ),
+                          const SizedBox(height: 16),
+                          _ImagePickerSection(
+                            imagePath: imagePath,
+                            bloc: context.read<CreateLessonBloc>(),
                           ),
                           const SizedBox(height: 24),
                           Row(
@@ -173,6 +186,71 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
     bloc.conclude(
       _titleController.text,
       _descriptionController.text,
+    );
+  }
+}
+
+class _ImagePickerSection extends StatelessWidget {
+  final String? imagePath;
+  final CreateLessonBloc bloc;
+
+  const _ImagePickerSection({required this.imagePath, required this.bloc});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Foto de capa (opcional)',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 8),
+        if (imagePath != null) ...[
+          Stack(
+            children: [
+              LessonImage(
+                localImagePath: imagePath,
+                width: double.infinity,
+                height: 180,
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton.filled(
+                  onPressed: bloc.removeImage,
+                  icon: const Icon(Icons.close, size: 18),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black54,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(4),
+                    minimumSize: const Size(28, 28),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ] else
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => bloc.pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Galeria'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => bloc.pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Câmera'),
+                ),
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

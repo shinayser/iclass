@@ -164,7 +164,7 @@ class StudentHomePage extends StatelessWidget {
                 onTap: lesson.answered
                     ? null
                     : () async {
-                        final route = '/student/lesson/${lesson.id}/answer';
+                        final route = '/student/home/lesson/${lesson.id}/answer';
                         await context.push(route);
                         if (context.mounted) {
                           context.read<StudentHomeBloc>().loadLessons();

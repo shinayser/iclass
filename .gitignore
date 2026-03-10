@@ -10,3 +10,4 @@
 .dart_tool/
 
 /build
+/devtools_options.yaml

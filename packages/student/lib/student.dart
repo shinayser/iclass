@@ -7,7 +7,7 @@ import 'package:student/src/features/home/presentation/controller/student_home_b
 import 'package:student/src/features/home/presentation/page/student_home_page.dart';
 
 class StudentModule extends Module with RoutedModule {
-  static const answerLessonRoute = '/student/lesson/:lessonId/answer';
+  static const answerLessonRoute = '/student/home/lesson/:lessonId/answer';
 
   @override
   Future<void> init() async {
@@ -46,13 +46,15 @@ class StudentModule extends Module with RoutedModule {
     GoRoute(
       path: CommonRoutes.studentHome,
       builder: (_, __) => const StudentHomePage(),
-    ),
-    GoRoute(
-      path: answerLessonRoute,
-      builder: (_, state) {
-        final lessonId = int.parse(state.pathParameters['lessonId']!);
-        return AnswerLessonPage(lessonId: lessonId);
-      },
+      routes: [
+        GoRoute(
+          path: 'lesson/:lessonId/answer',
+          builder: (_, state) {
+            final lessonId = int.parse(state.pathParameters['lessonId']!);
+            return AnswerLessonPage(lessonId: lessonId);
+          },
+        ),
+      ],
     ),
   ];
 }

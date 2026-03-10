@@ -1,13 +1,14 @@
 import 'package:auth/src/features/login/data/login_data_source.dart';
 import 'package:common/src/domain/entities/login_type.dart';
 import 'package:common/common.dart';
+import 'package:dartx/dartx.dart';
 
 enum LoginRepositoryError { invalidCredentials, unknownError }
 
 abstract interface class LoginRepository {
   Future<LoginType> login(String username, String password);
 
-  Future<bool> isLoggedIn();
+  Future<LoginType?> currentLoginType();
 
   Future<void> logout();
 }
@@ -39,8 +40,9 @@ class LoginRepositoryImpl implements LoginRepository {
   }
 
   @override
-  Future<bool> isLoggedIn() async {
-    return await _localDatabase.getData(kLoginType) != null;
+  Future<LoginType?> currentLoginType() async {
+    final loginTypeString = await _localDatabase.getData(kLoginType);
+    return LoginType.values.firstOrNullWhere((e) => e.name == loginTypeString);
   }
 
   @override

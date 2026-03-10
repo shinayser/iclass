@@ -1,7 +1,10 @@
 import 'package:common/common.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:teacher/teacher.dart';
 
 import '../controller/home_bloc.dart';
@@ -174,6 +177,10 @@ class TeacherHomePage extends StatelessWidget {
                         size: 18,
                       ),
                     IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () => _shareLesson(context, lesson),
+                    ),
+                    IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () => _confirmDelete(context, lesson),
                     ),
@@ -187,6 +194,21 @@ class TeacherHomePage extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
+  }
+
+  void _shareLesson(BuildContext context, Lesson lesson) async {
+    final url = 'https://iclass.com.br/student/home/lesson/${lesson.id}/answer';
+    if (kIsWeb) {
+      Clipboard.setData(ClipboardData(text: url));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link copiado para a área de transferência'),
+          behavior: .floating,
+        ),
+      );
+    } else {
+      await Share.share(url);
+    }
   }
 
   void _confirmDelete(BuildContext context, Lesson lesson) {

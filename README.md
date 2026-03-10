@@ -85,9 +85,35 @@ A estratégia é **offline-first**: toda operação de escrita é persistida loc
 3. `syncPending()` busca todas as lições com `syncStatus: pending` e tenta enviá-las ao servidor uma a uma.
 4. A UI reflete o estado de sincronização em tempo real (indicador "Sincronizando…" no AppBar + ícone de nuvem por lição pendente).
 
+## Deep Links
+
+O app suporta deep links para abrir lições diretamente. A URL de produção segue o formato:
+
+```
+https://iclass.com.br/student/home/lesson/{lessonId}/answer
+```
+
+Porém, deep links com scheme `https` exigem verificação de domínio (arquivo `assetlinks.json` hospedado no servidor). Como não há um domínio online configurado para esse projeto, foi registrado um **custom URL scheme** `iclass://` que funciona sem verificação de domínio.
+
+### Testando no Android
+
+1. Instale o app no emulador ou dispositivo:
+   ```bash
+   flutter run -d <device> --project packages/app
+   ```
+
+2. Em outro terminal, invoque o deep link via `adb`:
+   ```bash
+   adb shell am start -a android.intent.action.VIEW -d "iclass:///student/home/lesson/16/answer"
+   ```
+   Substitua `16` pelo ID da lição desejada. O app abrirá diretamente na tela de resposta da lição.
+
+### Compartilhamento
+
+Na home do professor, cada lição possui um botão de compartilhamento (ícone de share) que gera a URL `https://iclass.com.br/student/home/lesson/{id}/answer`
+
 ## O que eu faria como melhorias futuras
 Devido ao meu curto tempo para desenvolver o projeto (questões pessoais) e o meu desejo de fazê-lo sem auxílio de Agentes de IA, eu precisei fazer alguns trade offs para a entrega:
-* Não implementei a funcionalidade de Deeplinking para tarefas, deixando automaticmanete a exibição para o aluno no login.
 * Toda a persistência foi feita utilizando `SharedPreferences` por questão de simplicidade. Mas em um ambiente de produção real eu provavelmente usaria a biblioteca Hive (hive_ce) para persistência local, e para a camada de dados remotos, utilizaria uma API REST real ou GRPC.
 * Outras simplificações foram feitas como por exemplo o login, que ao invés de retornar um token real apenas retorna o tipo do login do usuário. 
 

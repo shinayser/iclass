@@ -45,7 +45,7 @@ void main() {
         final result = await repository.login('teacher', 'teacher123');
 
         expect(result, LoginType.teacher);
-        expect(await repository.isLoggedIn(), isTrue);
+        expect(await repository.currentLoginType(), isTrue);
       });
 
       test(
@@ -79,7 +79,7 @@ void main() {
 
     group('isLoggedIn', () {
       test('returns false when no session exists', () async {
-        expect(await repository.isLoggedIn(), isFalse);
+        expect(await repository.currentLoginType(), isFalse);
       });
 
       test('returns true after a successful login', () async {
@@ -88,7 +88,7 @@ void main() {
         ).thenAnswer((_) async => LoginType.student);
         await repository.login('student', 'student123');
 
-        expect(await repository.isLoggedIn(), isTrue);
+        expect(await repository.currentLoginType(), isTrue);
       });
     });
 
@@ -101,7 +101,7 @@ void main() {
 
         await repository.logout();
 
-        expect(await repository.isLoggedIn(), isFalse);
+        expect(await repository.currentLoginType(), isFalse);
       });
     });
   });

@@ -1,13 +1,13 @@
-import 'dart:developer';
-
-import 'package:auth/auth.dart';
+import 'package:app/router.dart';
 import 'package:common/common.dart';
 import 'package:design_system/design_system.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:student/student.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:teacher/teacher.dart';
+import 'package:auth/auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,29 +30,22 @@ void main() async {
     await module.init();
   }
 
-  final allRoutes = allModules
-      .whereType<RoutedModule>()
-      .map((module) => module.routes)
-      .fold(
-        <String, WidgetBuilder>{},
-        (previousValue, element) => {...previousValue, ...element},
-      );
+  final router = buildRouter(allModules);
 
-  runApp(MyApp(routes: allRoutes));
+  runApp(MyApp(router: router));
 }
 
 class MyApp extends StatelessWidget {
-  final Map<String, WidgetBuilder> routes;
+  final GoRouter router;
 
-  const MyApp({super.key, this.routes = const {}});
+  const MyApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: kDesignSystemTheme,
-      routes: routes,
-      home: const LoginPage(),
+      routerConfig: router,
     );
   }
 }

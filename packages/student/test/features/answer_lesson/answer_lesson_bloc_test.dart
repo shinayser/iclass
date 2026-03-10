@@ -8,15 +8,20 @@ import 'package:student/src/features/answer_lesson/presentation/domain/update_le
 
 class _MockUpdateLesson extends Mock implements UpdateLesson {}
 
+class _MockFetchLessonById extends Mock implements FetchLessonById {}
+
 void main() {
   late _MockUpdateLesson mockUpdate;
+  late _MockFetchLessonById mockFetchLessonById;
 
   setUp(() {
     mockUpdate = _MockUpdateLesson();
+    mockFetchLessonById = _MockFetchLessonById();
     registerFallbackValue(_lesson());
   });
 
-  AnswerLessonBloc _build() => AnswerLessonBloc(mockUpdate);
+  AnswerLessonBloc _build() =>
+      AnswerLessonBloc(mockUpdate, mockFetchLessonById);
 
   group('AnswerLessonBloc', () {
     test('initial state is AnswerLessonInitialState', () {
@@ -28,10 +33,15 @@ void main() {
     // -----------------------------------------------------------------------
 
     blocTest<AnswerLessonBloc, AnswerLessonState>(
-      'init emits AnswerLessonFormState with the given lesson and empty answers',
-      build: _build,
-      act: (bloc) => bloc.init(_lesson()),
+      'loadLesson emits Loading then FormState with the fetched lesson',
+      build: () {
+        when(() => mockFetchLessonById.execute(1))
+            .thenAnswer((_) async => _lesson());
+        return _build();
+      },
+      act: (bloc) => bloc.loadLesson(1),
       expect: () => [
+        isA<AnswerLessonLoadingState>(),
         isA<AnswerLessonFormState>()
             .having((s) => s.lesson.id, 'lesson.id', 1)
             .having((s) => s.selectedAnswers, 'selectedAnswers', isEmpty),
@@ -44,13 +54,18 @@ void main() {
 
     blocTest<AnswerLessonBloc, AnswerLessonState>(
       'selectAnswer stores the chosen answer for the given exercise index',
-      build: _build,
-      act: (bloc) {
-        bloc.init(_lesson());
+      build: () {
+        when(() => mockFetchLessonById.execute(1))
+            .thenAnswer((_) async => _lesson());
+        return _build();
+      },
+      act: (bloc) async {
+        await bloc.loadLesson(1);
         bloc.selectAnswer(0, 'Option A');
       },
       expect: () => [
-        isA<AnswerLessonFormState>(), // after init
+        isA<AnswerLessonLoadingState>(),
+        isA<AnswerLessonFormState>(),
         isA<AnswerLessonFormState>().having(
           (s) => s.selectedAnswers,
           'selectedAnswers',
@@ -61,13 +76,18 @@ void main() {
 
     blocTest<AnswerLessonBloc, AnswerLessonState>(
       'selectAnswer overwrites a previously selected answer',
-      build: _build,
-      act: (bloc) {
-        bloc.init(_lesson());
+      build: () {
+        when(() => mockFetchLessonById.execute(1))
+            .thenAnswer((_) async => _lesson());
+        return _build();
+      },
+      act: (bloc) async {
+        await bloc.loadLesson(1);
         bloc.selectAnswer(0, 'Option A');
         bloc.selectAnswer(0, 'Option B');
       },
       expect: () => [
+        isA<AnswerLessonLoadingState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonFormState>().having(
@@ -84,13 +104,18 @@ void main() {
 
     blocTest<AnswerLessonBloc, AnswerLessonState>(
       'conclude emits ErrorState when not all exercises are answered',
-      build: _build,
-      act: (bloc) {
-        bloc.init(_twoExerciseLesson());
+      build: () {
+        when(() => mockFetchLessonById.execute(2))
+            .thenAnswer((_) async => _twoExerciseLesson());
+        return _build();
+      },
+      act: (bloc) async {
+        await bloc.loadLesson(2);
         bloc.selectAnswer(0, 'A'); // only first answered
         bloc.conclude();
       },
       expect: () => [
+        isA<AnswerLessonLoadingState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonErrorState>().having(
@@ -103,12 +128,17 @@ void main() {
 
     blocTest<AnswerLessonBloc, AnswerLessonState>(
       'conclude emits ErrorState when no exercises are answered',
-      build: _build,
-      act: (bloc) {
-        bloc.init(_lesson()); // 1 exercise, 0 answered
+      build: () {
+        when(() => mockFetchLessonById.execute(1))
+            .thenAnswer((_) async => _lesson());
+        return _build();
+      },
+      act: (bloc) async {
+        await bloc.loadLesson(1);
         bloc.conclude();
       },
       expect: () => [
+        isA<AnswerLessonLoadingState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonErrorState>(),
       ],
@@ -121,15 +151,18 @@ void main() {
     blocTest<AnswerLessonBloc, AnswerLessonState>(
       'conclude calls UpdateLesson and emits DoneState when all exercises answered',
       build: () {
+        when(() => mockFetchLessonById.execute(1))
+            .thenAnswer((_) async => _lesson());
         when(() => mockUpdate.execute(any())).thenAnswer((_) async {});
         return _build();
       },
-      act: (bloc) {
-        bloc.init(_lesson());
+      act: (bloc) async {
+        await bloc.loadLesson(1);
         bloc.selectAnswer(0, 'Correct');
-        bloc.conclude();
+        await bloc.conclude();
       },
       expect: () => [
+        isA<AnswerLessonLoadingState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonFormState>(),
         isA<AnswerLessonDoneState>(),
@@ -141,13 +174,15 @@ void main() {
 
     test('conclude saves lesson with answered=true', () async {
       Lesson? savedLesson;
+      when(() => mockFetchLessonById.execute(1))
+          .thenAnswer((_) async => _lesson());
       when(() => mockUpdate.execute(any())).thenAnswer((inv) async {
         savedLesson = inv.positionalArguments.first as Lesson;
       });
 
-      final bloc = _build()
-        ..init(_lesson())
-        ..selectAnswer(0, 'Correct');
+      final bloc = _build();
+      await bloc.loadLesson(1);
+      bloc.selectAnswer(0, 'Correct');
       await bloc.conclude();
 
       expect(savedLesson?.answered, isTrue);

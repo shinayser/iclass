@@ -1,7 +1,7 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:student/student.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controller/student_home_bloc.dart';
 import '../controller/student_home_state.dart';
@@ -16,7 +16,7 @@ class StudentHomePage extends StatelessWidget {
       child: BlocConsumer<StudentHomeBloc, StudentHomeState>(
         listener: (context, state) {
           if (state is StudentHomeLoggedOutState) {
-            Navigator.of(context).pushReplacementNamed(CommonRoutes.login);
+            context.go(CommonRoutes.login);
           }
         },
         buildWhen: (_, current) => current is! StudentHomeLoggedOutState,
@@ -163,18 +163,12 @@ class StudentHomePage extends StatelessWidget {
                     : const Icon(Icons.chevron_right),
                 onTap: lesson.answered
                     ? null
-                    : () {
-                        Navigator.pushNamed(
-                          context,
-                          StudentModule.answerLessonRoute,
-                          arguments: lesson,
-                        ).then(
-                          (value) {
-                            if (context.mounted) {
-                              context.read<StudentHomeBloc>().loadLessons();
-                            }
-                          },
-                        );
+                    : () async {
+                        final route = '/student/lesson/${lesson.id}/answer';
+                        await context.push(route);
+                        if (context.mounted) {
+                          context.read<StudentHomeBloc>().loadLessons();
+                        }
                       },
               ),
             );

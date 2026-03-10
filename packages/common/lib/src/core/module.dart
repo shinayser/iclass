@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart' show WidgetBuilder;
+import 'package:go_router/go_router.dart';
 
 abstract class Module {
   Future<void> init();
 }
 
 mixin RoutedModule on Module {
-  Map<String, WidgetBuilder> get routes;
+  List<RouteBase> get routes;
 }

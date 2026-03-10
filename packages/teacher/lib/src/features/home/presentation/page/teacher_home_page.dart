@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:teacher/teacher.dart';
 
 import '../controller/home_bloc.dart';
@@ -16,7 +17,7 @@ class TeacherHomePage extends StatelessWidget {
       child: BlocConsumer<TeacherHomeBloc, HomeState>(
         listener: (context, state) {
           if (state is HomeLoggedOutState) {
-            Navigator.of(context).pushReplacementNamed(CommonRoutes.login);
+            context.go(CommonRoutes.login);
           }
         },
         buildWhen: (_, current) => current is! HomeLoggedOutState,
@@ -64,10 +65,7 @@ class TeacherHomePage extends StatelessWidget {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
-                await Navigator.pushNamed(
-                  context,
-                  TeacherModule.createLessonRoute,
-                );
+                await context.push(TeacherModule.createLessonRoute);
                 if (context.mounted) {
                   context.read<TeacherHomeBloc>().loadLessons();
                 }

@@ -8,6 +8,11 @@ class AnswerLessonInitialState extends AnswerLessonState with EquatableMixin {
   List<Object?> get props => [];
 }
 
+class AnswerLessonLoadingState extends AnswerLessonState with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}
+
 class AnswerLessonFormState extends AnswerLessonState with EquatableMixin {
   final Lesson lesson;
   final Map<int, String> selectedAnswers;

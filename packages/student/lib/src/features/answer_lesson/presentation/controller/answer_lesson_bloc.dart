@@ -5,16 +5,34 @@ import 'package:student/src/features/answer_lesson/presentation/domain/update_le
 
 class AnswerLessonBloc extends Cubit<AnswerLessonState> {
   final UpdateLesson _updateLesson;
+  final FetchLessonById _fetchLessonById;
 
-  AnswerLessonBloc(this._updateLesson) : super(AnswerLessonInitialState());
+  AnswerLessonBloc(this._updateLesson, this._fetchLessonById)
+      : super(AnswerLessonInitialState());
 
-  void init(Lesson lesson) {
-    emit(
-      AnswerLessonFormState(
-        lesson: lesson,
-        selectedAnswers: {},
-      ),
-    );
+  Future<void> loadLesson(int lessonId) async {
+    emit(AnswerLessonLoadingState());
+    try {
+      final lesson = await _fetchLessonById.execute(lessonId);
+      emit(
+        AnswerLessonFormState(
+          lesson: lesson,
+          selectedAnswers: {},
+        ),
+      );
+    } catch (e) {
+      emit(
+        AnswerLessonErrorState(
+          lesson: Lesson(
+            name: '',
+            description: '',
+            exercises: [],
+          ),
+          selectedAnswers: {},
+          errorMessage: 'Erro ao carregar a lição',
+        ),
+      );
+    }
   }
 
   void selectAnswer(int exerciseIndex, String answer) {

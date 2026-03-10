@@ -3,6 +3,7 @@ import 'package:auth/src/features/login/presentation/controller/login_state.dart
 import 'package:common/common.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,9 +24,7 @@ class _LoginPageState extends State<LoginPage> {
       child: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoginDoneState) {
-            Navigator.of(
-              context,
-            ).pushReplacementNamed(CommonRoutes.getHome(state.loginType));
+            context.go(CommonRoutes.getHome(state.loginType));
           }
         },
         builder: (BuildContext context, LoginState state) {

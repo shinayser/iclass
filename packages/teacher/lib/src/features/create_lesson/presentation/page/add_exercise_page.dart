@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controller/add_exercise_bloc.dart';
 import '../controller/add_exercise_state.dart';
@@ -47,7 +48,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
       child: BlocConsumer<AddExerciseBloc, AddExerciseState>(
         listener: (context, state) {
           if (state is AddExerciseDoneState) {
-            Navigator.of(context).pop(state.form);
+            context.pop(state.form);
           }
           if (state is AddExerciseErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(

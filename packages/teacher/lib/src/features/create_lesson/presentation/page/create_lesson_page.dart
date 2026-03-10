@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:teacher/src/features/create_lesson/data/model/exercise_form_data.dart';
 import 'package:teacher/teacher.dart';
 
@@ -32,7 +33,7 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
       child: BlocConsumer<CreateLessonBloc, CreateLessonState>(
         listener: (context, state) {
           if (state is CreateLessonDoneState) {
-            Navigator.of(context).pop();
+            context.pop();
           }
           if (state is CreateLessonErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -159,12 +160,12 @@ class _CreateLessonPageState extends State<CreateLessonPage> {
   }
 
   Future<void> _addExercise(CreateLessonBloc bloc) async {
-    final result = await Navigator.of(context).pushNamed(
+    final result = await context.push<ExerciseFormData>(
       TeacherModule.addExerciseRoute,
     );
 
     if (result != null) {
-      bloc.addExercise(result as ExerciseFormData);
+      bloc.addExercise(result);
     }
   }
 

@@ -6,6 +6,8 @@ import 'package:common/common.dart';
 abstract interface class LessonsRepository {
   Future<List<Lesson>> fetchLessons();
 
+  Future<Lesson> fetchLessonById(int id);
+
   Future<void> saveLesson(Lesson lesson);
 
   Future<void> deleteLesson(int id);
@@ -31,6 +33,15 @@ class SyncAwareLessonsRepository implements LessonsRepository {
     this._remoteDataSource,
     this._connectivity,
   );
+
+  @override
+  Future<Lesson> fetchLessonById(int id) async {
+    final lessons = await fetchLessons();
+    return lessons.firstWhere(
+      (l) => l.id == id,
+      orElse: () => throw Exception('Lesson not found: $id'),
+    );
+  }
 
   @override
   Future<List<Lesson>> fetchLessons() async {
@@ -69,12 +80,10 @@ class SyncAwareLessonsRepository implements LessonsRepository {
   ) {
     final mergedMap = <int, Lesson>{};
 
-    // Adiciona lições locais primeiro
     for (final lesson in localLessons) {
       mergedMap[lesson.id] = lesson;
     }
 
-    // Mescla com remotas, priorizando versões síncronizadas
     for (final lesson in remoteLessons) {
       mergedMap[lesson.id] = lesson.copyWith(syncStatus: SyncStatus.synced);
     }
@@ -82,27 +91,12 @@ class SyncAwareLessonsRepository implements LessonsRepository {
     return mergedMap.values.toList();
   }
 
-  Future<List<Lesson>> _loadFromRemote() async {
-    final remoteLessons = await _remoteDataSource.fetchLessons();
-    final encoded = jsonEncode(
-      remoteLessons
-          .map(
-            (l) => l.copyWith(syncStatus: SyncStatus.synced).toJson(),
-          )
-          .toList(),
-    );
-    await _localDatabase.saveData(_kLessonsList, encoded);
-    return remoteLessons;
-  }
-
   @override
   Future<void> saveLesson(Lesson lesson) async {
-    // 1. Persist locally as pending immediately.
     await _persistLocally(
       lesson.copyWith(syncStatus: SyncStatus.pending),
     );
 
-    // 2. Attempt remote sync if online.
     if (await _connectivity.isOnline()) {
       await _syncLesson(lesson);
     }

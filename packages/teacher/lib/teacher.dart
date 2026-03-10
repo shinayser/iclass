@@ -1,5 +1,5 @@
 import 'package:common/common.dart';
-import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:teacher/src/features/create_lesson/domain/use_case/persist_lesson.dart';
 import 'package:teacher/src/features/create_lesson/presentation/controller/create_lesson_bloc.dart';
 import 'package:teacher/src/features/create_lesson/presentation/page/add_exercise_page.dart';
@@ -10,8 +10,8 @@ import 'package:teacher/src/features/home/presentation/page/teacher_home_page.da
 import 'src/features/create_lesson/presentation/controller/add_exercise_bloc.dart';
 
 class TeacherModule extends Module with RoutedModule {
-  static final createLessonRoute = "/teacher/lesson/create";
-  static final addExerciseRoute = "/teacher/exercise/add";
+  static const createLessonRoute = "/teacher/lesson/create";
+  static const addExerciseRoute = "/teacher/exercise/add";
 
   @override
   Future<void> init() async {
@@ -47,9 +47,18 @@ class TeacherModule extends Module with RoutedModule {
   }
 
   @override
-  Map<String, WidgetBuilder> get routes => {
-    CommonRoutes.teacherHome: (context) => const TeacherHomePage(),
-    createLessonRoute: (context) => const CreateLessonPage(),
-    addExerciseRoute: (context) => const AddExercisePage(),
-  };
+  List<RouteBase> get routes => [
+    GoRoute(
+      path: CommonRoutes.teacherHome,
+      builder: (_, __) => const TeacherHomePage(),
+    ),
+    GoRoute(
+      path: createLessonRoute,
+      builder: (_, __) => const CreateLessonPage(),
+    ),
+    GoRoute(
+      path: addExerciseRoute,
+      builder: (_, __) => const AddExercisePage(),
+    ),
+  ];
 }

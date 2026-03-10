@@ -4,15 +4,18 @@ import 'package:common/src/domain/repositories/login_repository.dart';
 import 'package:auth/src/features/login/domain/login_use_case.dart';
 import 'package:auth/src/features/login/presentation/controller/login_bloc.dart';
 import 'package:common/common.dart';
-import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 export 'package:auth/src/features/login/presentation/page/login_page.dart';
 
 class AuthModule extends Module with RoutedModule {
   @override
-  Map<String, WidgetBuilder> get routes => {
-    CommonRoutes.login: (context) => const LoginPage(),
-  };
+  List<RouteBase> get routes => [
+    GoRoute(
+      path: CommonRoutes.login,
+      builder: (_, __) => const LoginPage(),
+    ),
+  ];
 
   @override
   Future<void> init() async {

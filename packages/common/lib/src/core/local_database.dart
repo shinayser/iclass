@@ -6,6 +6,8 @@ abstract interface class LocalDatabase {
   Future<String?> getData(String key);
 
   Future<void> deleteData(String key);
+
+  Future<void> clear();
 }
 
 class PreferencesLocalDatabase implements LocalDatabase {
@@ -28,5 +30,10 @@ class PreferencesLocalDatabase implements LocalDatabase {
   @override
   Future<void> deleteData(String key) async {
     await _prefs.remove(key);
+  }
+
+  @override
+  Future<void> clear() async {
+    await _prefs.clear();
   }
 }

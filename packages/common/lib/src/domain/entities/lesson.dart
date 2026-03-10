@@ -2,7 +2,7 @@ import 'package:common/src/domain/entities/sync_status.dart';
 import 'package:equatable/equatable.dart';
 
 class Lesson with EquatableMixin {
-  final String id;
+  final int id;
   final String name;
   final String description;
   final List<ExerciseEntity> exercises;
@@ -10,7 +10,7 @@ class Lesson with EquatableMixin {
   final SyncStatus syncStatus;
 
   Lesson({
-    required this.id,
+    this.id = 0,
     required this.name,
     required this.description,
     required this.exercises,
@@ -21,7 +21,7 @@ class Lesson with EquatableMixin {
   factory Lesson.fromJson(Map<String, dynamic> json) {
     final syncStatusStr = json['syncStatus'] as String?;
     return Lesson(
-      id: json['id'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
       description: json['description'] as String,
       exercises: (json['exercises'] as List<dynamic>)
@@ -35,7 +35,7 @@ class Lesson with EquatableMixin {
   }
 
   Lesson copyWith({
-    String? id,
+    int? id,
     String? name,
     String? description,
     List<ExerciseEntity>? exercises,
@@ -66,11 +66,13 @@ class Lesson with EquatableMixin {
 }
 
 class ExerciseEntity with EquatableMixin {
+  final int id;
   final String title;
   final List<String> wrongAnswers;
   final String correctAnswer;
 
   ExerciseEntity({
+    this.id = 0,
     required this.title,
     required this.correctAnswer,
     required this.wrongAnswers,
@@ -79,8 +81,8 @@ class ExerciseEntity with EquatableMixin {
   factory ExerciseEntity.fromJson(Map<String, dynamic> json) {
     return ExerciseEntity(
       title: json['title'] as String,
-      correctAnswer: json['correctAnswer'] as String,
-      wrongAnswers: (json['wrongAnswers'] as List<dynamic>)
+      correctAnswer: json['correct_answer'] as String,
+      wrongAnswers: (json['wrong_answers'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
     );
@@ -91,7 +93,7 @@ class ExerciseEntity with EquatableMixin {
 
   Map<String, dynamic> toJson() => {
     'title': title,
-    'correctAnswer': correctAnswer,
-    'wrongAnswers': wrongAnswers,
+    'correct_answer': correctAnswer,
+    'wrong_answers': wrongAnswers,
   };
 }

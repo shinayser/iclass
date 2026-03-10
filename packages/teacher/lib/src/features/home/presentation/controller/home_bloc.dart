@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:common/common.dart';
 import 'package:teacher/src/features/home/presentation/controller/home_state.dart';
 
-class HomeBloc extends Cubit<HomeState> {
+class TeacherHomeBloc extends Cubit<HomeState> {
   final FetchLessons _fetchLessons;
   final DeleteLesson _deleteLesson;
   final LogoutUseCase _loginUseCase;
@@ -12,8 +12,12 @@ class HomeBloc extends Cubit<HomeState> {
 
   StreamSubscription<SyncState>? _syncSub;
 
-  HomeBloc(this._fetchLessons, this._deleteLesson, this._loginUseCase, this._syncService)
-    : super(HomeInitialState());
+  TeacherHomeBloc(
+    this._fetchLessons,
+    this._deleteLesson,
+    this._loginUseCase,
+    this._syncService,
+  ) : super(HomeInitialState());
 
   Future<void> loadLessons() async {
     emit(HomeLoadingState());
@@ -49,7 +53,7 @@ class HomeBloc extends Cubit<HomeState> {
     }
   }
 
-  Future<void> deleteLesson(String id) async {
+  Future<void> deleteLesson(int id) async {
     try {
       await _deleteLesson.execute(id);
       await loadLessons();

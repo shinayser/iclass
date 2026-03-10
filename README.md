@@ -19,7 +19,7 @@ flutter pub get
 flutter run -d <device> --project packages/app
 
 # 3. Rodar todos os testes unitários
-melos run test
+melos run test --no-select
 # ou individualmente:
 flutter test packages/common
 flutter test packages/teacher

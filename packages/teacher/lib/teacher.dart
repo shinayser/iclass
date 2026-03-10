@@ -5,7 +5,7 @@ import 'package:teacher/src/features/create_lesson/presentation/controller/creat
 import 'package:teacher/src/features/create_lesson/presentation/page/add_exercise_page.dart';
 import 'package:teacher/src/features/create_lesson/presentation/page/create_lesson_page.dart';
 import 'package:teacher/src/features/home/presentation/controller/home_bloc.dart';
-import 'package:teacher/src/features/home/presentation/page/home_page.dart';
+import 'package:teacher/src/features/home/presentation/page/teacher_home_page.dart';
 
 import 'src/features/create_lesson/presentation/controller/add_exercise_bloc.dart';
 
@@ -25,7 +25,7 @@ class TeacherModule extends Module with RoutedModule {
     );
     Injection.registerFactory(() => AddExerciseBloc());
     Injection.registerFactory(
-      () => HomeBloc(
+      () => TeacherHomeBloc(
         Injection.get<FetchLessons>(),
         Injection.get<DeleteLesson>(),
         Injection.get<LogoutUseCase>(),
@@ -48,7 +48,7 @@ class TeacherModule extends Module with RoutedModule {
 
   @override
   Map<String, WidgetBuilder> get routes => {
-    CommonRoutes.teacherHome: (context) => const HomePage(),
+    CommonRoutes.teacherHome: (context) => const TeacherHomePage(),
     createLessonRoute: (context) => const CreateLessonPage(),
     addExerciseRoute: (context) => const AddExercisePage(),
   };

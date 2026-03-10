@@ -16,4 +16,9 @@ class FakeLocalDatabase implements LocalDatabase {
 
   @override
   Future<void> deleteData(String key) async => _store.remove(key);
+
+  @override
+  Future<void> clear() async {
+    _store.clear();
+  }
 }

@@ -8,3 +8,5 @@
 
 # Dart tool
 .dart_tool/
+
+/build

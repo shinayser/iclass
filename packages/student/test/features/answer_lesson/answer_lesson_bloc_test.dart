@@ -33,7 +33,7 @@ void main() {
       act: (bloc) => bloc.init(_lesson()),
       expect: () => [
         isA<AnswerLessonFormState>()
-            .having((s) => s.lesson.id, 'lesson.id', 'l1')
+            .having((s) => s.lesson.id, 'lesson.id', 1)
             .having((s) => s.selectedAnswers, 'selectedAnswers', isEmpty),
       ],
     );
@@ -51,12 +51,11 @@ void main() {
       },
       expect: () => [
         isA<AnswerLessonFormState>(), // after init
-        isA<AnswerLessonFormState>()
-            .having(
-              (s) => s.selectedAnswers,
-              'selectedAnswers',
-              {0: 'Option A'},
-            ),
+        isA<AnswerLessonFormState>().having(
+          (s) => s.selectedAnswers,
+          'selectedAnswers',
+          {0: 'Option A'},
+        ),
       ],
     );
 
@@ -162,32 +161,32 @@ void main() {
 // ---------------------------------------------------------------------------
 
 Lesson _lesson() => Lesson(
-      id: 'l1',
-      name: 'Test Lesson',
-      description: 'desc',
-      exercises: [
-        ExerciseEntity(
-          title: 'Q1',
-          correctAnswer: 'Correct',
-          wrongAnswers: ['Wrong 1', 'Wrong 2'],
-        ),
-      ],
-    );
+  id: 1,
+  name: 'Test Lesson',
+  description: 'desc',
+  exercises: [
+    ExerciseEntity(
+      title: 'Q1',
+      correctAnswer: 'Correct',
+      wrongAnswers: ['Wrong 1', 'Wrong 2'],
+    ),
+  ],
+);
 
 Lesson _twoExerciseLesson() => Lesson(
-      id: 'l2',
-      name: 'Two Exercise Lesson',
-      description: 'desc',
-      exercises: [
-        ExerciseEntity(
-          title: 'Q1',
-          correctAnswer: 'A',
-          wrongAnswers: ['B', 'C'],
-        ),
-        ExerciseEntity(
-          title: 'Q2',
-          correctAnswer: 'X',
-          wrongAnswers: ['Y', 'Z'],
-        ),
-      ],
-    );
+  id: 2,
+  name: 'Two Exercise Lesson',
+  description: 'desc',
+  exercises: [
+    ExerciseEntity(
+      title: 'Q1',
+      correctAnswer: 'A',
+      wrongAnswers: ['B', 'C'],
+    ),
+    ExerciseEntity(
+      title: 'Q2',
+      correctAnswer: 'X',
+      wrongAnswers: ['Y', 'Z'],
+    ),
+  ],
+);

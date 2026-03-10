@@ -5,7 +5,7 @@ abstract interface class RemoteLessonsDataSource {
 
   Future<void> saveLesson(Lesson lesson);
 
-  Future<void> deleteLesson(String id);
+  Future<void> deleteLesson(int id);
 }
 
 /// Simulates a remote server in memory with artificial network latency.
@@ -28,7 +28,7 @@ class FakeRemoteLessonsDataSource implements RemoteLessonsDataSource {
   }
 
   @override
-  Future<void> deleteLesson(String id) {
+  Future<void> deleteLesson(int id) {
     return Future.delayed(_simulatedDelay, () {
       _lessons.removeWhere((l) => l.id == id);
     });

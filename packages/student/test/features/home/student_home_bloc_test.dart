@@ -30,8 +30,7 @@ void main() {
     when(() => mockSync.currentState).thenReturn(SyncState.idle);
   });
 
-  StudentHomeBloc _build() =>
-      StudentHomeBloc(mockFetch, mockLogout, mockSync);
+  StudentHomeBloc _build() => StudentHomeBloc(mockFetch, mockLogout, mockSync);
 
   group('StudentHomeBloc', () {
     test('initial state is StudentHomeInitialState', () {
@@ -47,8 +46,8 @@ void main() {
       build: () {
         when(() => mockFetch.execute()).thenAnswer(
           (_) async => [
-            _lesson('1', answered: true),
-            _lesson('2', answered: false),
+            _lesson(1, answered: true),
+            _lesson(2, answered: false),
           ],
         );
         return _build();
@@ -59,7 +58,7 @@ void main() {
         isA<StudentHomeLoadedState>().having(
           (s) => s.lessons.map((l) => l.id).toList(),
           'sorted ids',
-          ['2', '1'], // unanswered first
+          [2, 1], // unanswered first
         ),
       ],
     );
@@ -132,23 +131,26 @@ void main() {
       await controller.close();
     });
 
-    test('isSyncing reflects currentState at the moment of loadLessons', () async {
-      when(() => mockSync.currentState).thenReturn(SyncState.syncing);
-      when(() => mockFetch.execute()).thenAnswer((_) async => []);
+    test(
+      'isSyncing reflects currentState at the moment of loadLessons',
+      () async {
+        when(() => mockSync.currentState).thenReturn(SyncState.syncing);
+        when(() => mockFetch.execute()).thenAnswer((_) async => []);
 
-      final bloc = _build();
-      await bloc.loadLessons();
+        final bloc = _build();
+        await bloc.loadLessons();
 
-      expect((bloc.state as StudentHomeLoadedState).isSyncing, isTrue);
-      await bloc.close();
-    });
+        expect((bloc.state as StudentHomeLoadedState).isSyncing, isTrue);
+        await bloc.close();
+      },
+    );
   });
 }
 
-Lesson _lesson(String id, {bool answered = false}) => Lesson(
-      id: id,
-      name: 'Lesson $id',
-      description: 'desc',
-      exercises: [],
-      answered: answered,
-    );
+Lesson _lesson(int id, {bool answered = false}) => Lesson(
+  id: id,
+  name: 'Lesson $id',
+  description: 'desc',
+  exercises: [],
+  answered: answered,
+);

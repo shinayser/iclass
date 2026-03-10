@@ -17,6 +17,11 @@ class _FakeLocalDatabase implements LocalDatabase {
 
   @override
   Future<void> deleteData(String key) async => _store.remove(key);
+
+  @override
+  Future<void> clear() async {
+    _store.clear();
+  }
 }
 
 void main() {
@@ -33,8 +38,9 @@ void main() {
   group('LoginRepositoryImpl', () {
     group('login', () {
       test('returns LoginType and persists it locally on success', () async {
-        when(() => mockDataSource.login(any(), any()))
-            .thenAnswer((_) async => LoginType.teacher);
+        when(
+          () => mockDataSource.login(any(), any()),
+        ).thenAnswer((_) async => LoginType.teacher);
 
         final result = await repository.login('teacher', 'teacher123');
 
@@ -42,27 +48,33 @@ void main() {
         expect(await repository.isLoggedIn(), isTrue);
       });
 
-      test('throws LoginRepositoryError.invalidCredentials on bad credentials',
-          () async {
-        when(() => mockDataSource.login(any(), any()))
-            .thenThrow(LoginDataSourceError.invalidCredentials);
+      test(
+        'throws LoginRepositoryError.invalidCredentials on bad credentials',
+        () async {
+          when(
+            () => mockDataSource.login(any(), any()),
+          ).thenThrow(LoginDataSourceError.invalidCredentials);
 
-        expect(
-          () => repository.login('bad', 'creds'),
-          throwsA(LoginRepositoryError.invalidCredentials),
-        );
-      });
+          expect(
+            () => repository.login('bad', 'creds'),
+            throwsA(LoginRepositoryError.invalidCredentials),
+          );
+        },
+      );
 
-      test('throws LoginRepositoryError.unknownError on unexpected error',
-          () async {
-        when(() => mockDataSource.login(any(), any()))
-            .thenThrow(Exception('unexpected'));
+      test(
+        'throws LoginRepositoryError.unknownError on unexpected error',
+        () async {
+          when(
+            () => mockDataSource.login(any(), any()),
+          ).thenThrow(Exception('unexpected'));
 
-        expect(
-          () => repository.login('x', 'y'),
-          throwsA(LoginRepositoryError.unknownError),
-        );
-      });
+          expect(
+            () => repository.login('x', 'y'),
+            throwsA(LoginRepositoryError.unknownError),
+          );
+        },
+      );
     });
 
     group('isLoggedIn', () {
@@ -71,8 +83,9 @@ void main() {
       });
 
       test('returns true after a successful login', () async {
-        when(() => mockDataSource.login(any(), any()))
-            .thenAnswer((_) async => LoginType.student);
+        when(
+          () => mockDataSource.login(any(), any()),
+        ).thenAnswer((_) async => LoginType.student);
         await repository.login('student', 'student123');
 
         expect(await repository.isLoggedIn(), isTrue);
@@ -81,8 +94,9 @@ void main() {
 
     group('logout', () {
       test('removes session so isLoggedIn returns false', () async {
-        when(() => mockDataSource.login(any(), any()))
-            .thenAnswer((_) async => LoginType.teacher);
+        when(
+          () => mockDataSource.login(any(), any()),
+        ).thenAnswer((_) async => LoginType.teacher);
         await repository.login('teacher', 'teacher123');
 
         await repository.logout();

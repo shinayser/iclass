@@ -31,7 +31,8 @@ void main() {
     when(() => mockSync.currentState).thenReturn(SyncState.idle);
   });
 
-  HomeBloc _build() => HomeBloc(mockFetch, mockDelete, mockLogout, mockSync);
+  TeacherHomeBloc _build() =>
+      TeacherHomeBloc(mockFetch, mockDelete, mockLogout, mockSync);
 
   group('HomeBloc', () {
     test('initial state is HomeInitialState', () {
@@ -42,11 +43,11 @@ void main() {
     // loadLessons
     // -----------------------------------------------------------------------
 
-    blocTest<HomeBloc, HomeState>(
+    blocTest<TeacherHomeBloc, HomeState>(
       'emits [Loading, Loaded] with the returned lessons on success',
       build: () {
         when(() => mockFetch.execute()).thenAnswer(
-          (_) async => [_lesson('1'), _lesson('2')],
+          (_) async => [_lesson(1), _lesson(2)],
         );
         return _build();
       },
@@ -61,7 +62,7 @@ void main() {
       ],
     );
 
-    blocTest<HomeBloc, HomeState>(
+    blocTest<TeacherHomeBloc, HomeState>(
       'emits [Loading, Error] when fetchLessons throws',
       build: () {
         when(() => mockFetch.execute()).thenThrow(Exception('error'));
@@ -82,16 +83,16 @@ void main() {
     // deleteLesson
     // -----------------------------------------------------------------------
 
-    blocTest<HomeBloc, HomeState>(
+    blocTest<TeacherHomeBloc, HomeState>(
       'emits [Loading, Loaded] after deleting a lesson successfully',
       build: () {
         when(() => mockDelete.execute(any())).thenAnswer((_) async {});
         when(() => mockFetch.execute()).thenAnswer(
-          (_) async => [_lesson('2')],
+          (_) async => [_lesson(2)],
         );
         return _build();
       },
-      act: (bloc) => bloc.deleteLesson('1'),
+      act: (bloc) => bloc.deleteLesson(1),
       expect: () => [
         isA<HomeLoadingState>(),
         isA<HomeLoadedState>().having(
@@ -102,13 +103,13 @@ void main() {
       ],
     );
 
-    blocTest<HomeBloc, HomeState>(
+    blocTest<TeacherHomeBloc, HomeState>(
       'emits [Error] when deleteLesson throws',
       build: () {
         when(() => mockDelete.execute(any())).thenThrow(Exception('error'));
         return _build();
       },
-      act: (bloc) => bloc.deleteLesson('1'),
+      act: (bloc) => bloc.deleteLesson(1),
       expect: () => [
         isA<HomeErrorState>().having(
           (s) => s.errorMessage,
@@ -122,7 +123,7 @@ void main() {
     // logout
     // -----------------------------------------------------------------------
 
-    blocTest<HomeBloc, HomeState>(
+    blocTest<TeacherHomeBloc, HomeState>(
       'emits HomeLoggedOutState after logout',
       build: () {
         when(() => mockLogout.logout(any(), any())).thenAnswer((_) async {});
@@ -160,23 +161,25 @@ void main() {
       await controller.close();
     });
 
-    test('isSyncing reflects currentState at the moment of loadLessons',
-        () async {
-      when(() => mockSync.currentState).thenReturn(SyncState.syncing);
-      when(() => mockFetch.execute()).thenAnswer((_) async => []);
+    test(
+      'isSyncing reflects currentState at the moment of loadLessons',
+      () async {
+        when(() => mockSync.currentState).thenReturn(SyncState.syncing);
+        when(() => mockFetch.execute()).thenAnswer((_) async => []);
 
-      final bloc = _build();
-      await bloc.loadLessons();
+        final bloc = _build();
+        await bloc.loadLessons();
 
-      expect((bloc.state as HomeLoadedState).isSyncing, isTrue);
-      await bloc.close();
-    });
+        expect((bloc.state as HomeLoadedState).isSyncing, isTrue);
+        await bloc.close();
+      },
+    );
   });
 }
 
-Lesson _lesson(String id) => Lesson(
-      id: id,
-      name: 'Lesson $id',
-      description: 'desc',
-      exercises: [],
-    );
+Lesson _lesson(int id) => Lesson(
+  id: id,
+  name: 'Lesson $id',
+  description: 'desc',
+  exercises: [],
+);

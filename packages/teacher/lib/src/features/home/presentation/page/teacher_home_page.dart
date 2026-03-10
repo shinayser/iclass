@@ -1,27 +1,27 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:student/student.dart';
+import 'package:teacher/teacher.dart';
 
-import '../controller/student_home_bloc.dart';
-import '../controller/student_home_state.dart';
+import '../controller/home_bloc.dart';
+import '../controller/home_state.dart';
 
-class StudentHomePage extends StatelessWidget {
-  const StudentHomePage({super.key});
+class TeacherHomePage extends StatelessWidget {
+  const TeacherHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StudentHomeBloc>(
-      create: (_) => Injection.get<StudentHomeBloc>()..loadLessons(),
-      child: BlocConsumer<StudentHomeBloc, StudentHomeState>(
+    return BlocProvider<TeacherHomeBloc>(
+      create: (_) => Injection.get<TeacherHomeBloc>()..loadLessons(),
+      child: BlocConsumer<TeacherHomeBloc, HomeState>(
         listener: (context, state) {
-          if (state is StudentHomeLoggedOutState) {
+          if (state is HomeLoggedOutState) {
             Navigator.of(context).pushReplacementNamed(CommonRoutes.login);
           }
         },
-        buildWhen: (_, current) => current is! StudentHomeLoggedOutState,
+        buildWhen: (_, current) => current is! HomeLoggedOutState,
         builder: (context, state) {
-          final isSyncing = state is StudentHomeLoadedState && state.isSyncing;
+          final isSyncing = state is HomeLoadedState && state.isSyncing;
 
           return Scaffold(
             appBar: AppBar(
@@ -51,16 +51,28 @@ class StudentHomePage extends StatelessWidget {
                     ),
                   ),
                 IconButton(
-                  onPressed: () => context.read<StudentHomeBloc>().logout(),
+                  onPressed: () => context.read<TeacherHomeBloc>().logout(),
                   icon: Icon(Icons.logout),
                 ),
               ],
               title: Center(
                 child: ListTile(
                   title: Text('iClass'),
-                  subtitle: Text('Área do aluno'),
+                  subtitle: Text('Área do professor'),
                 ),
               ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () async {
+                await Navigator.pushNamed(
+                  context,
+                  TeacherModule.createLessonRoute,
+                );
+                if (context.mounted) {
+                  context.read<TeacherHomeBloc>().loadLessons();
+                }
+              },
+              child: Icon(Icons.add),
             ),
             body: Container(
               decoration: const BoxDecoration(
@@ -78,8 +90,8 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, StudentHomeState state) {
-    if (state is StudentHomeLoadingState || state is StudentHomeInitialState) {
+  Widget _buildBody(BuildContext context, HomeState state) {
+    if (state is HomeLoadingState || state is HomeInitialState) {
       return const Center(
         child: CircularProgressIndicator.adaptive(
           backgroundColor: Colors.white,
@@ -87,25 +99,37 @@ class StudentHomePage extends StatelessWidget {
       );
     }
 
-    if (state is StudentHomeErrorState) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            state.errorMessage,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14),
+    if (state is HomeErrorState) {
+      return RefreshIndicator(
+        onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - kToolbarHeight,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  state.errorMessage,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       );
     }
 
-    if (state is StudentHomeLoadedState) {
+    if (state is HomeLoadedState) {
       final lessons = state.lessons;
 
       if (lessons.isEmpty) {
         return RefreshIndicator(
-          onRefresh: () => context.read<StudentHomeBloc>().loadLessons(),
+          onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
           child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: SizedBox(
@@ -115,7 +139,7 @@ class StudentHomePage extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
-                      'Nenhuma lição disponível no momento.',
+                      'Nenhuma lição cadastrada.\nToque no botão para criar uma nova lição.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12),
                     ),
@@ -128,7 +152,7 @@ class StudentHomePage extends StatelessWidget {
       }
 
       return RefreshIndicator(
-        onRefresh: () => context.read<StudentHomeBloc>().loadLessons(),
+        onRefresh: () => context.read<TeacherHomeBloc>().loadLessons(),
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: lessons.length,
@@ -137,45 +161,26 @@ class StudentHomePage extends StatelessWidget {
             final lesson = lessons[index];
             return Card(
               child: ListTile(
-                leading: lesson.answered
-                    ? CircleAvatar(
-                        backgroundColor: Colors.green,
-                        child: Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
-                      )
-                    : CircleAvatar(
-                        child: Text('${index + 1}'),
-                      ),
+                leading: CircleAvatar(child: Text('${index + 1}')),
                 title: Text(lesson.name),
                 subtitle: Text(
                   '${lesson.exercises.length} exercício(s)',
                 ),
-                trailing: lesson.answered
-                    ? null
-                    : lesson.syncStatus == SyncStatus.pending
-                    ? const Icon(
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (lesson.syncStatus == SyncStatus.pending)
+                      const Icon(
                         Icons.cloud_upload_outlined,
                         color: Colors.orange,
                         size: 18,
-                      )
-                    : const Icon(Icons.chevron_right),
-                onTap: lesson.answered
-                    ? null
-                    : () {
-                        Navigator.pushNamed(
-                          context,
-                          StudentModule.answerLessonRoute,
-                          arguments: lesson,
-                        ).then(
-                          (value) {
-                            if (context.mounted) {
-                              context.read<StudentHomeBloc>().loadLessons();
-                            }
-                          },
-                        );
-                      },
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _confirmDelete(context, lesson),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -184,5 +189,28 @@ class StudentHomePage extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
+  }
+
+  void _confirmDelete(BuildContext context, Lesson lesson) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Apagar lição'),
+        content: Text('Deseja realmente apagar a lição "${lesson.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Não'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<TeacherHomeBloc>().deleteLesson(lesson.id);
+            },
+            child: const Text('Sim'),
+          ),
+        ],
+      ),
+    );
   }
 }

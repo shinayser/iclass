@@ -64,7 +64,6 @@ class CreateLessonBloc extends Cubit<CreateLessonState> {
     ).toList();
 
     return Lesson(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: title,
       description: description,
       exercises: exercises,

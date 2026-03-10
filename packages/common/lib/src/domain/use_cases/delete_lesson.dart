@@ -5,7 +5,7 @@ class DeleteLesson {
 
   DeleteLesson(this._repository);
 
-  Future<void> execute(String id) {
+  Future<void> execute(int id) {
     return _repository.deleteLesson(id);
   }
 }

@@ -13,6 +13,16 @@ class Injection {
     dispose: dispose,
   );
 
+  static void registerLazySingletonAsync<T extends Object>(
+    Future<T> Function() factory, {
+    String? instanceName,
+    DisposingFunc<T>? dispose,
+  }) => _getIt.registerLazySingletonAsync<T>(
+    factory,
+    instanceName: instanceName,
+    dispose: dispose,
+  );
+
   static void registerSingleton<T extends Object>(
     T instance, {
     String? instanceName,
@@ -36,6 +46,16 @@ class Injection {
     dynamic param2,
   }) =>
       _getIt.get<T>(instanceName: instanceName, param1: param1, param2: param2);
+
+  static Future<T> getAsync<T extends Object>({
+    String? instanceName,
+    dynamic param1,
+    dynamic param2,
+  }) => _getIt.getAsync<T>(
+    instanceName: instanceName,
+    param1: param1,
+    param2: param2,
+  );
 
   static void resetLazySingleton<T extends Object>({
     T? instance,

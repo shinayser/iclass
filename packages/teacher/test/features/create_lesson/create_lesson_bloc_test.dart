@@ -15,7 +15,7 @@ void main() {
   setUp(() {
     mockPersist = _MockPersistLesson();
     registerFallbackValue(
-      Lesson(id: 'fb', name: 'fb', description: 'fb', exercises: []),
+      Lesson(id: 1, name: 'fb', description: 'fb', exercises: []),
     );
   });
 
@@ -54,9 +54,21 @@ void main() {
         bloc.addExercise(_exercise('Q3'));
       },
       expect: () => [
-        isA<CreateLessonFormState>().having((s) => s.exercises, 'ex', hasLength(1)),
-        isA<CreateLessonFormState>().having((s) => s.exercises, 'ex', hasLength(2)),
-        isA<CreateLessonFormState>().having((s) => s.exercises, 'ex', hasLength(3)),
+        isA<CreateLessonFormState>().having(
+          (s) => s.exercises,
+          'ex',
+          hasLength(1),
+        ),
+        isA<CreateLessonFormState>().having(
+          (s) => s.exercises,
+          'ex',
+          hasLength(2),
+        ),
+        isA<CreateLessonFormState>().having(
+          (s) => s.exercises,
+          'ex',
+          hasLength(3),
+        ),
       ],
     );
 
@@ -73,8 +85,16 @@ void main() {
         bloc.removeExercise(0); // remove Q1
       },
       expect: () => [
-        isA<CreateLessonFormState>().having((s) => s.exercises, 'ex', hasLength(1)),
-        isA<CreateLessonFormState>().having((s) => s.exercises, 'ex', hasLength(2)),
+        isA<CreateLessonFormState>().having(
+          (s) => s.exercises,
+          'ex',
+          hasLength(1),
+        ),
+        isA<CreateLessonFormState>().having(
+          (s) => s.exercises,
+          'ex',
+          hasLength(2),
+        ),
         isA<CreateLessonFormState>().having(
           (s) => s.exercises.first.question,
           'remaining question',
@@ -140,26 +160,28 @@ void main() {
       },
     );
 
-    test('conclude builds lesson with answered=false and correct exercises',
-        () async {
-      Lesson? saved;
-      when(() => mockPersist.execute(any())).thenAnswer((inv) async {
-        saved = inv.positionalArguments.first as Lesson;
-      });
+    test(
+      'conclude builds lesson with answered=false and correct exercises',
+      () async {
+        Lesson? saved;
+        when(() => mockPersist.execute(any())).thenAnswer((inv) async {
+          saved = inv.positionalArguments.first as Lesson;
+        });
 
-      final bloc = _build()
-        ..addExercise(_exercise('Q1', correct: 'A', wrong: ['B', 'C']))
-        ..conclude('Title', 'Desc');
+        final bloc = _build()
+          ..addExercise(_exercise('Q1', correct: 'A', wrong: ['B', 'C']))
+          ..conclude('Title', 'Desc');
 
-      await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
 
-      expect(saved?.name, 'Title');
-      expect(saved?.answered, isFalse);
-      expect(saved?.exercises.first.correctAnswer, 'A');
-      expect(saved?.exercises.first.wrongAnswers, containsAll(['B', 'C']));
+        expect(saved?.name, 'Title');
+        expect(saved?.answered, isFalse);
+        expect(saved?.exercises.first.correctAnswer, 'A');
+        expect(saved?.exercises.first.wrongAnswers, containsAll(['B', 'C']));
 
-      await bloc.close();
-    });
+        await bloc.close();
+      },
+    );
   });
 }
 

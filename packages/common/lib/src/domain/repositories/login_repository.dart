@@ -45,6 +45,6 @@ class LoginRepositoryImpl implements LoginRepository {
 
   @override
   Future<void> logout() async {
-    await _localDatabase.deleteData(kLoginType);
+    await _localDatabase.clear();
   }
 }

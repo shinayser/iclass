@@ -6,12 +6,17 @@ import 'package:design_system/design_system.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:student/student.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:teacher/teacher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   EquatableConfig.stringify = true;
+
+  await Supabase.initialize(
+    url: 'https://azwzokekmicmhdnafhfh.supabase.co',
+    anonKey: 'sb_publishable_l9YiN7ot9wNIWoVmTCAY0g_DRsJkvox',
+  );
 
   final allModules = [
     CommonModule(),
